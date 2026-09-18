@@ -1,0 +1,36 @@
+import "server-only";
+import { cache } from "react";
+import { redirect } from "next/navigation";
+import { createClient } from "@/lib/supabase/server";
+import { getProfileById } from "@/lib/db/queries/profiles";
+import { ForbiddenError } from "@/lib/errors";
+import type { Role, SessionUser } from "./types";
+
+// cache() = เรียกกี่ครั้งใน request เดียวก็ query ครั้งเดียว
+export const getSessionUser = cache(async (): Promise<SessionUser | null> => {
+  const supabase = await createClient();
+  // getClaims verify ลายเซ็น JWT (ไม่ใช่ getSession ที่อ่าน cookie เฉยๆ) — ถ้าโปรเจกต์ใช้ HS256 จะ fallback ไปถาม server ให้เอง
+  const { data } = await supabase.auth.getClaims();
+  const sub = data?.claims.sub;
+  if (!sub) return null;
+
+  // โหลด profiles ทุก request (ไม่เก็บ role ใน cookie) → เปลี่ยน role / ปิด user มีผลทันที
+  const profile = await getProfileById(sub);
+  if (!profile || !profile.isActive) return null;
+
+  return { id: profile.id, name: profile.name, role: profile.role };
+});
+
+// ใช้ในหน้า/layout/action: ไม่มี session → ไป login
+export async function requireUser(): Promise<SessionUser> {
+  const user = await getSessionUser();
+  if (!user) redirect("/login");
+  return user;
+}
+
+// ใช้ในหน้าที่จำกัด role (เช่น หน้าตั้งค่าลายเซ็นของผู้บริหาร) — สิทธิ์ต่อ record ยังต้องเช็กที่ query/service
+export async function requireUserWithRole(...roles: Role[]): Promise<SessionUser> {
+  const user = await requireUser();
+  if (!roles.includes(user.role)) throw new ForbiddenError();
+  return user;
+}
