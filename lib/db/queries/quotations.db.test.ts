@@ -99,6 +99,19 @@ describe("listQuotations", () => {
   });
 });
 
+describe("listQuotations sort", () => {
+  const q = "ZZTEST";
+  it("oldest / customer / quote_date orderings", async () => {
+    const oldest = await listQuotations(saleA, { q, sort: "oldest", page: 1 });
+    expect(oldest.items[0]!.customerName).toContain("หนึ่ง");
+    const byName = await listQuotations(exec, { q, sort: "customer", page: 1 });
+    const names = byName.items.map((i) => i.customerName);
+    expect(names).toEqual([...names].sort((a, b) => a.localeCompare(b, "th")));
+    const byDate = await listQuotations(exec, { q, sort: "quote_date", page: 1 });
+    expect(byDate.items).toHaveLength(5);
+  });
+});
+
 describe("countQuotationsByStatus", () => {
   it("scoped per role", async () => {
     const a = await countQuotationsByStatus(saleA);

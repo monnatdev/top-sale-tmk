@@ -27,8 +27,8 @@ export function ExportPdfButton({ id, primary, label = "Export PDF", size = "def
   };
 
   return (
-    <Button variant={primary ? "default" : "outline"} size={size} className={className} onClick={open}>
-      <FileDownIcon /> {opened && primary ? "กำลังอัปเดตสถานะ…" : label}
+    <Button variant={primary ? "default" : "outline"} size={size} className={className} loading={opened && primary} onClick={open}>
+      {opened && primary ? null : <FileDownIcon />} {opened && primary ? "กำลังอัปเดตสถานะ…" : label}
     </Button>
   );
 }

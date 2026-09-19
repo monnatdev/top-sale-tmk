@@ -3,7 +3,8 @@
 import { revalidatePath } from "next/cache";
 import { action } from "@/lib/actionWrapper";
 import * as quotationService from "@/lib/services/quotationService";
-import { quotationIdSchema, rejectQuotationSchema, saveDraftSchema } from "@/lib/validation/quotation";
+import { customerSearchSchema, quotationIdSchema, rejectQuotationSchema, saveDraftSchema } from "@/lib/validation/quotation";
+import { searchCustomers as searchCustomersQuery } from "@/lib/db/queries/customers";
 
 // บันทึกร่าง — ไม่มี id = สร้างใหม่ · มี id = แก้ร่างเดิม (client redirect เองด้วย id ที่คืน)
 export const saveDraft = action(saveDraftSchema, async ({ id, ...draft }, user) => {
@@ -36,3 +37,6 @@ export const closeSale = action(quotationIdSchema, async ({ id }, user) => {
   revalidatePath("/quotations");
   revalidatePath(`/quotations/${id}`);
 });
+
+// ค้นหาลูกค้าเก่าใน sheet (read-only, ลูกค้าแชร์ทั้งบริษัท — ไม่ต้อง scope) · เรียกตอนเปิด sheet + พิมพ์ค้น
+export const searchCustomers = action(customerSearchSchema, async ({ q }) => searchCustomersQuery(q));

@@ -107,7 +107,7 @@
 
 | component | หมายเหตุ |
 |---|---|
-| `Button` | variants: `default` (ส้ม — ปุ่มหลัก 1 ปุ่ม/หน้า), `outline` (ย้อนกลับ/บันทึกร่าง), `outline-primary` (+ เพิ่มสินค้า เดสก์ท็อป), `destructive` (ขอบแดง — ตีกลับ/ลบ), `success` (ปิดการขาย), `ghost`, `link` (แก้ไข) · sizes: `default` 44/40, `lg` 52 (sticky มือถือ), `sm` 36, `xs`, `icon*` |
+| `Button` | **`loading`** = spinner + disabled (ใช้กับทุกปุ่มที่เรียก action) · variants: `default` (ส้ม — ปุ่มหลัก 1 ปุ่ม/หน้า), `outline` (ย้อนกลับ/บันทึกร่าง), `outline-primary` (+ เพิ่มสินค้า เดสก์ท็อป), `destructive` (ขอบแดง — ตีกลับ/ลบ), `success` (ปิดการขาย), `ghost`, `link` (แก้ไข) · sizes: `default` 44/40, `lg` 52 (sticky มือถือ), `sm` 36, `xs`, `icon*` |
 | `Input` | 48/44px พื้นขาว focus ขอบส้ม · `readOnly` = พื้น surface-muted · ตัวเลขใส่ `className="numeric"`/`"mono"` |
 | `Textarea` | เหมือน Input |
 | `Label` | 12px muted (ใช้ผ่าน `FormField` เป็นหลัก) |
@@ -129,6 +129,8 @@
 | `PageBody` | พื้นที่เนื้อหาใต้หัว | `withActionBar` เมื่อหน้ามี StickyActionBar |
 | `StickyActionBar` | ปุ่มหลัก sticky ล่างจอมือถือ (เหนือ BottomNav) — เดสก์ท็อปย้ายปุ่มไป `PageHeader.actions` | `split` = ย้อนกลับ \| ถัดไป |
 | `BrandLogo` | โลโก้หยดส้ม placeholder | `size: sm/md/lg` |
+| `NavLink` (client) | ลิงก์เมนูที่ไอคอนเปลี่ยนเป็น spinner ระหว่างรอหน้า (Sidebar/BottomNav ใช้) | `href`, `icon`, `active` |
+| `components/skeletons/PageSkeleton` | `HeaderSkeleton`, `CardSkeleton`, `ListSkeleton` — ใช้ใน `loading.tsx` ของทุก route | `chips`, `search`, `rows` |
 
 ### 2.3 `components/shared/` — ใช้ได้ทุกโดเมน
 
@@ -137,6 +139,8 @@
 | `SectionCard` | การ์ดขาวมีหัว — block พื้นฐานทุกหน้า | `title`, `step` ("01"), `meta` ("4 รายการ"), `action`, `flush` (รายการเต็มความกว้าง), `divided` |
 | `FormField` | ครอบทุกช่องกรอกในฟอร์ม | `label`, `hint` (accent), `trailing` (mono ขวา), `error` |
 | `SearchInput` | ช่องค้นหา (พื้นครีม) | เหมือน Input |
+| `Spinner` | spinner มาตรฐาน (Loader2 หมุน) — ใช้ใน Button loading / nav / sheet | `className`, `label` |
+| `LinkButton` (client) | ปุ่มที่เป็นลิงก์ — แสดง spinner จนหน้าใหม่มา (`useLinkStatus`) **ใช้แทน `Button render={<Link/>}` เสมอ** | `href`, `icon`, + props ของ Button |
 | `SegmentedControl` (client) | เลือก 2–3 ทาง: ลูกค้าเก่า/ใหม่, เครดิต/เงินสด | `options`, `value`, `onChange`, `size` |
 | `NumericText` | ตัวเลข + หน่วยตัวเล็ก | `value`, `unit`, `size: sm…2xl`, `muted` |
 | `ProductThumbnail` | รูปสินค้า (next/image) หรือ stripe placeholder | `src`, `size: sm 44 / md 64×52 / lg 72×56` |
@@ -153,12 +157,13 @@
 | `StatusFilterChips` | แถว chip กรองสถานะ + จำนวน (เลื่อนแนวนอนบนมือถือ) | `items[{status\|'all', count, href}]`, `active` |
 | `QuotationList` | รายการใบ responsive (การ์ด ↔ ตาราง) | `items: QuotationListItem[]`, `showOwner` (มุมผู้บริหาร), `emptyText` |
 | `QuotationCard` / `QuotationTable` | ชิ้นส่วนของ QuotationList (ปกติไม่เรียกตรง) | — |
+| `SortSelect` (client) | เรียงหน้ารายการ (native select + spinner) — รับ `params` object ไม่รับ function | `value`, `params: {status?, q?}` |
 | `ListPagination` | ก่อนหน้า / n–m จาก total · หน้า x/y / ถัดไป — ซ่อนถ้าหน้าเดียว | `page`, `pageSize`, `total`, `hrefFor(page)` |
 | `PriceTable` | **ตารางราคาต่อถุง** responsive — ไม่มีจำนวน ไม่มียอดรวม | `items: LedgerItem[]`, `renderTrailing` (ปุ่มลบ), `renderPrice` (input ราคาแทนตัวเลข), `footer` · ใส่ใน `SectionCard flush divided` |
 | `LedgerRow` | บรรทัดสินค้าแบบสมุดชั่ง (signature element) | `item`, `variant: compact/table`, `index`, `trailing`, `priceSlot` |
 | `QuotationForm` (client) | ฟอร์มสร้าง/แก้ใบทั้งหน้า — มือถือ wizard 3 ขั้น / เดสก์ท็อป 3 section · ใช้ที่ `/quotations/new` และ `/[id]/edit` | `initial`, `quotationId`, `products`, `customers`, `onSaveDraft`, `onSubmit` (server actions ส่งเข้ามา) |
 | `ProductPickerSheet` (client) | bottom sheet (มือถือ) / side sheet (เดสก์ท็อป) เลือกสินค้า + กรอกราคา/ถุง | `products`, `excludeIds`, `onConfirm({productId, pricePerBag})` |
-| `CustomerPickerSheet` (client) | sheet เลือกลูกค้าเก่า (ค้นหาชื่อ/เลขภาษี) | `customers`, `onSelect` |
+| `CustomerPickerSheet` (client) | sheet เลือกลูกค้าเก่า — โหลด on-demand ผ่าน server action (ล่าสุด 20 / ค้นหา debounce 250ms) | `onSearch`, `onSelect` |
 | `SubmitButton` (client) | ปุ่ม "ส่งให้ผู้บริหารอนุมัติ" บนหน้าดูใบ | `id`, `disabled` |
 | `ApprovalActions` (client) | ปุ่มผู้บริหารตอนรออนุมัติ: "อนุมัติ + เซ็น" (Dialog ยืนยัน + preview ลายเซ็น) และ "ตีกลับพร้อมเหตุผล" (Dialog + Textarea บังคับกรอก) · dialog ค้าง "กำลังอัปเดตหน้า…" จน refresh เสร็จ | `id`, `quoteNumber`, `signatureUrl`, `onApprove`, `onReject`, `layout: mobile/desktop` |
 | `ExportPdfButton` (client) | เปิด `/api/quotations/:id/pdf` แท็บใหม่ แล้ว refresh · `primary` = ครั้งแรก (approved → sent) | `id`, `primary`, `label`, `size` |
@@ -225,6 +230,10 @@
 | ต้องการ | ใช้ | ห้าม |
 |---|---|---|
 | ปุ่ม | `<Button variant size>` | `<button className="bg-primary ...">` เอง |
+| ปุ่มที่ไปหน้าอื่น | `<LinkButton href icon>` | `<Button render={<Link/>}>` (ไม่มี spinner) |
+| ปุ่มเรียก action | `<Button loading={pending}>` | `disabled={pending}` + ข้อความเฉยๆ |
+| หน้าใหม่ | ต้องมี `loading.tsx` (ใช้ skeleton จาก `PageSkeleton`) | ปล่อยหน้าขาวระหว่างโหลด |
+| ส่ง prop จาก server → client component | ข้อมูล plain (string/object) | function (จะพังตอน render: "Functions cannot be passed to Client Components") |
 | แสดงสถานะใบ | `<StatusBadge status>` | `<Badge className="bg-[#FBEFD6]">` / เขียน pill เอง |
 | สีตามสถานะที่อื่น (จุด, แถบ, ตัวเลข) | `STATUS_STYLE[status].bg/.text/.borderL` | `bg-status-${x}` (ต่อ string) |
 | ป้ายภาษาไทยของสถานะ | `STATUS_LABEL[status]` | พิมพ์ "รออนุมัติ" ซ้ำในหน้า |
@@ -244,7 +253,6 @@
 ## 5. ยังไม่มีใน kit (ทำเมื่อถึงงานนั้น — เพิ่มที่นี่เมื่อสร้าง)
 
 - `Select` (จังหวัด), date picker (วันที่เสนอราคา) → shadcn `Select` / `Calendar` ปรับสูง 48/44
-- loading skeleton (`loading.tsx`) + error state (`error.tsx`) ของหน้า (CLAUDE.md §7 — ทำในข้อ 11) — ยึดโทน: การ์ดขอบประ + ข้อความ muted (ดู `QuotationList` ตอนว่าง)
 - `Toast` — แจ้งผลบันทึก/ส่งอนุมัติ
 - โลโก้จริงใน PDF (`lib/pdf/quotationPdf.tsx` ตอนนี้เป็นกล่อง placeholder "ORGANIC"/"แม่ครัว") — ใส่ไฟล์ png แล้ว `<Image>` แทน
 - โหมดมืด — ไม่อยู่ในดีไซน์ MVP

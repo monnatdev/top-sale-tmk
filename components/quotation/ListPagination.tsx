@@ -1,6 +1,6 @@
-import Link from "next/link";
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { LinkButton } from "@/components/shared/LinkButton";
 import { cn } from "@/lib/utils";
 
 type ListPaginationProps = {
@@ -20,15 +20,27 @@ export function ListPagination({ page, pageSize, total, hrefFor, className }: Li
   const to = Math.min(total, page * pageSize);
   return (
     <nav aria-label="เปลี่ยนหน้า" className={cn("flex items-center justify-between gap-3", className)}>
-      <Button variant="outline" size="sm" disabled={page <= 1} render={page > 1 ? <Link href={hrefFor(page - 1)} /> : undefined}>
-        <ChevronLeftIcon /> ก่อนหน้า
-      </Button>
+      {page > 1 ? (
+        <LinkButton href={hrefFor(page - 1)} icon={<ChevronLeftIcon />} variant="outline" size="sm">
+          ก่อนหน้า
+        </LinkButton>
+      ) : (
+        <Button variant="outline" size="sm" disabled>
+          <ChevronLeftIcon /> ก่อนหน้า
+        </Button>
+      )}
       <span className="mono text-xs text-muted-foreground">
         {from}–{to} จาก {total} · หน้า {page}/{pages}
       </span>
-      <Button variant="outline" size="sm" disabled={page >= pages} render={page < pages ? <Link href={hrefFor(page + 1)} /> : undefined}>
-        ถัดไป <ChevronRightIcon />
-      </Button>
+      {page < pages ? (
+        <LinkButton href={hrefFor(page + 1)} variant="outline" size="sm">
+          ถัดไป <ChevronRightIcon />
+        </LinkButton>
+      ) : (
+        <Button variant="outline" size="sm" disabled>
+          ถัดไป <ChevronRightIcon />
+        </Button>
+      )}
     </nav>
   );
 }

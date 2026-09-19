@@ -50,7 +50,7 @@ export function CloseSaleButton({ id, quoteNumber, onClose, size = "default" }: 
             <Button variant="outline" disabled={busy} onClick={() => setOpen(false)}>
               ยกเลิก
             </Button>
-            <Button variant="success" disabled={busy} onClick={confirm}>
+            <Button variant="success" loading={busy} onClick={confirm}>
               {done ? "กำลังอัปเดตหน้า…" : pending ? "กำลังบันทึก…" : "ยืนยันปิดการขาย"}
             </Button>
           </DialogFooter>

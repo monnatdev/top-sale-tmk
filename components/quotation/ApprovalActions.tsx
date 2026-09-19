@@ -75,7 +75,7 @@ export function ApprovalActions({ id, quoteNumber, signatureUrl, onApprove, onRe
             <Button variant="outline" disabled={busy} onClick={() => setDialog(null)}>
               ยกเลิก
             </Button>
-            <Button disabled={busy || !signatureUrl} onClick={() => run(() => onApprove({ id }))}>
+            <Button disabled={!signatureUrl} loading={busy} onClick={() => run(() => onApprove({ id }))}>
               {done ? "กำลังอัปเดตหน้า…" : pending ? "กำลังอนุมัติ…" : "ยืนยันอนุมัติ + เซ็น"}
             </Button>
           </DialogFooter>
@@ -104,7 +104,7 @@ export function ApprovalActions({ id, quoteNumber, signatureUrl, onApprove, onRe
             <Button variant="outline" disabled={busy} onClick={() => setDialog(null)}>
               ยกเลิก
             </Button>
-            <Button variant="destructive" disabled={busy || !reason.trim()} onClick={() => run(() => onReject({ id, reason }))}>
+            <Button variant="destructive" disabled={!reason.trim()} loading={busy} onClick={() => run(() => onReject({ id, reason }))}>
               {done ? "กำลังอัปเดตหน้า…" : pending ? "กำลังตีกลับ…" : "ยืนยันตีกลับ"}
             </Button>
           </DialogFooter>

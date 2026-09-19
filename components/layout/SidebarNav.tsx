@@ -1,7 +1,7 @@
 "use client";
 
-import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { NavLink } from "./NavLink";
 import { NAV_ITEMS, isNavActive } from "./navItems";
 import { cn } from "@/lib/utils";
 
@@ -13,10 +13,12 @@ export function SidebarNav() {
       {NAV_ITEMS.map(({ href, label, icon: Icon }) => {
         const active = isNavActive(pathname, href);
         return (
-          <Link
+          <NavLink
             key={href}
             href={href}
-            aria-current={active ? "page" : undefined}
+            active={active}
+            icon={Icon}
+            iconClassName="size-4"
             className={cn(
               "flex items-center gap-2.5 rounded-md px-3 py-[11px] text-sm transition-colors",
               active
@@ -24,9 +26,8 @@ export function SidebarNav() {
                 : "text-sidebar-muted hover:bg-sidebar-accent hover:text-sidebar-foreground",
             )}
           >
-            <Icon className="size-4" />
             {label}
-          </Link>
+          </NavLink>
         );
       })}
     </nav>

@@ -1,7 +1,6 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { PencilIcon } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { LinkButton } from "@/components/shared/LinkButton";
 import { PageBody } from "@/components/layout/PageBody";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { StickyActionBar } from "@/components/layout/StickyActionBar";
@@ -55,9 +54,9 @@ export default async function QuotationDetailPage({ params }: PageProps<"/quotat
     if (canEdit) {
       return (
         <>
-          <Button variant="outline" size={layout === "mobile" ? "lg" : "default"} render={<Link href={`/quotations/${q.id}/edit`} />}>
-            <PencilIcon /> แก้ไข
-          </Button>
+          <LinkButton href={`/quotations/${q.id}/edit`} icon={<PencilIcon />} variant="outline" size={layout === "mobile" ? "lg" : "default"}>
+            แก้ไข
+          </LinkButton>
           <SubmitButton id={q.id} disabled={q.items.length === 0} />
         </>
       );

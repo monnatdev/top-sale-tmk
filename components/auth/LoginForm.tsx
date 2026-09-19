@@ -62,7 +62,7 @@ export function LoginForm({ action, mobile }: LoginFormProps) {
           {formError}
         </p>
       ) : null}
-      <Button type="submit" size={mobile ? "lg" : "default"} className="mt-1 w-full" disabled={pending}>
+      <Button type="submit" size={mobile ? "lg" : "default"} className="mt-1 w-full" loading={pending}>
         {pending ? "กำลังเข้าสู่ระบบ…" : "เข้าสู่ระบบ"}
       </Button>
     </form>

@@ -1,7 +1,7 @@
 "use client";
 
-import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { NavLink } from "./NavLink";
 import { NAV_ITEMS, isNavActive } from "./navItems";
 import { cn } from "@/lib/utils";
 
@@ -17,18 +17,19 @@ export function BottomNav() {
       {NAV_ITEMS.map(({ href, label, icon: Icon }) => {
         const active = isNavActive(pathname, href);
         return (
-          <Link
+          <NavLink
             key={href}
             href={href}
-            aria-current={active ? "page" : undefined}
+            active={active}
+            icon={Icon}
+            iconClassName="size-4"
             className={cn(
               "flex flex-col items-center gap-1.5 py-2 text-2xs",
               active ? "font-medium text-primary-hover" : "text-muted-foreground",
             )}
           >
-            <Icon className="size-4" strokeWidth={2} />
             {label}
-          </Link>
+          </NavLink>
         );
       })}
     </nav>

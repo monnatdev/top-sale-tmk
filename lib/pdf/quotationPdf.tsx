@@ -1,3 +1,4 @@
+/* eslint-disable jsx-a11y/alt-text -- <Image> ของ react-pdf ไม่ใช่ <img> DOM */
 // template PDF ใบเสนอราคา (A4 หน้าเดียว) ตาม pattern ใบเดิมของบริษัท — ดูดีไซน์ส่วน "PDF PREVIEW"
 // pure: รับข้อมูลที่ format แล้ว ไม่แตะ DB/Next · เรียกจาก service เท่านั้น
 import path from "node:path";

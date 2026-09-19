@@ -154,7 +154,7 @@ UI ภาษาไทยทั้งหมด, mobile-first (พนักงา�
 8. **ปิดการขาย** — ปุ่มเปลี่ยนสถานะ ✅
 9. **รายการใบเสนอราคา** — list + กรองสถานะ + ค้นหา + สิทธิ์ (เซลล์เห็นเฉพาะตัวเอง) + pagination ✅
 10. **ภาพรวม** — ใบเสนอราคาแยกตามสถานะ (นับจำนวน กดไปหน้ารายการที่กรอง) ✅
-11. **Responsive + ขัดเกลา** — ทุกหน้าใช้มือถือได้จริง + loading state
+11. **Responsive + ขัดเกลา** — ทุกหน้าใช้มือถือได้จริง + loading state ✅ (loading.tsx/skeleton ทุกหน้า, spinner ปุ่ม/เมนู, error/not-found, sort+search+on-demand customer, Playwright e2e ใน repo — เหลือ: ทดสอบมือถือจริง/ปรับตาม feedback)
 12. **ก่อน deploy** — error tracking (Sentry), npm audit, backup ทดสอบกู้, โอน ownership account ให้ลูกค้า
 
 **วิธีสั่งแต่ละงาน:** "ทำข้อ X ตาม BRIEF.md" แล้วรีวิว/เทสก่อนไปข้อถัดไป อย่าข้ามไปหลายข้อพร้อมกัน

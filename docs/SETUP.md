@@ -36,6 +36,7 @@ curl localhost:3000/api/health   # ต้องได้ {"ok":true,"db":"connec
 | `npm run dev` | dev server |
 | `npm run typecheck` | ตรวจ TypeScript |
 | `npm test` | unit test (ไม่แตะ DB) |
+| `npm run test:e2e` | Playwright e2e ต่อ dev server (`tests/e2e/`) — ใช้ผู้ใช้ seed + DB dev · สร้างใบ "(e2e …)" จริงใน DB · ต้องมีลายเซ็นผู้บริหาร · ครั้งแรก `npx playwright install chromium` |
 | `npm run test:db` | test ที่ต่อ DB จริง (`*.db.test.ts`) — ใช้ `.env.local` (dev) · สร้างผู้ใช้ชั่วคราว `zztest-*` + ใบ `QT-9999-xxxx` แล้วลบทิ้งเอง · ห้ามชี้ prod |
 | `npm run db:generate` | สร้าง migration จาก `lib/db/schema.ts` → `drizzle/` |
 | `npm run db:migrate` | รัน migration ไปที่ `DIRECT_URL` |

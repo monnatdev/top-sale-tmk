@@ -36,8 +36,8 @@ type QuotationFormProps = {
   quoteNumber?: string;
   initial?: Partial<QuotationFormValues>;
   products: readonly ProductOption[];
-  customers: readonly CustomerOption[];
   /** server actions — ส่งเข้ามาเพื่อให้ component ไม่ผูกกับ route */
+  onSearchCustomers: (input: { q: string }) => Promise<ActionResult<CustomerOption[]>>;
   onSaveDraft: (input: QuotationFormValues & { id?: string }) => Promise<ActionResult<{ id: string }>>;
   onSubmit: (input: { id: string }) => Promise<ActionResult<void>>;
 };
@@ -61,7 +61,7 @@ const EMPTY: QuotationFormValues = {
 
 // ฟอร์มสร้าง/แก้ใบ — มือถือ = wizard 3 ขั้น · เดสก์ท็อป = 3 section ในหน้าเดียว (state ชุดเดียวกัน)
 // ไม่มี business logic: validation จริง + snapshot อยู่ที่ service ผ่าน server action
-export function QuotationForm({ quotationId, quoteNumber, initial, products, customers, onSaveDraft, onSubmit }: QuotationFormProps) {
+export function QuotationForm({ quotationId, quoteNumber, initial, products, onSearchCustomers, onSaveDraft, onSubmit }: QuotationFormProps) {
   const router = useRouter();
   const [form, setForm] = useState<QuotationFormValues>({ ...EMPTY, ...initial });
   const [step, setStep] = useState(0);
@@ -71,6 +71,8 @@ export function QuotationForm({ quotationId, quoteNumber, initial, products, cus
   const [customerPickerOpen, setCustomerPickerOpen] = useState(false);
   const [productPickerOpen, setProductPickerOpen] = useState(false);
   const [pending, startTransition] = useTransition();
+  // ปุ่มไหนกำลังทำงาน (แสดง spinner เฉพาะปุ่มนั้น)
+  const [intent, setIntent] = useState<"draft" | "submit" | null>(null);
 
   const set = <K extends keyof QuotationFormValues>(key: K, value: QuotationFormValues[K]) => {
     setForm((f) => ({ ...f, [key]: value }));
@@ -144,12 +146,14 @@ export function QuotationForm({ quotationId, quoteNumber, initial, products, cus
 
   const handleSaveDraft = () =>
     startTransition(async () => {
+      setIntent("draft");
       const id = await persist();
       if (id) router.push(`/quotations/${id}`);
     });
 
   const handleSubmit = () =>
     startTransition(async () => {
+      setIntent("submit");
       const id = await persist();
       if (!id) return;
       const res = await onSubmit({ id });
@@ -194,16 +198,16 @@ export function QuotationForm({ quotationId, quoteNumber, initial, products, cus
         }
         back={{ href: savedId ? `/quotations/${savedId}` : "/quotations", label: "ยกเลิก" }}
         aside={
-          <Button variant="link" className="ml-auto text-body md:hidden" disabled={pending} onClick={handleSaveDraft}>
+          <Button variant="link" className="ml-auto text-body md:hidden" loading={pending} onClick={handleSaveDraft}>
             บันทึกร่าง
           </Button>
         }
         actions={
           <div className="hidden gap-3 md:flex">
-            <Button variant="outline" disabled={pending} onClick={handleSaveDraft}>
+            <Button variant="outline" loading={pending && intent === "draft"} disabled={pending} onClick={handleSaveDraft}>
               บันทึกร่าง
             </Button>
-            <Button disabled={pending} onClick={handleSubmit}>
+            <Button loading={pending && intent === "submit"} disabled={pending} onClick={handleSubmit}>
               ส่งให้ผู้บริหารอนุมัติ
             </Button>
           </div>
@@ -412,21 +416,21 @@ export function QuotationForm({ quotationId, quoteNumber, initial, products, cus
         </StickyActionBar>
       ) : (
         <StickyActionBar>
-          <Button size="lg" disabled={pending} onClick={handleSubmit}>
-            {pending ? "กำลังบันทึก…" : "ส่งให้ผู้บริหารอนุมัติ"}
+          <Button size="lg" loading={pending && intent === "submit"} disabled={pending} onClick={handleSubmit}>
+            {pending && intent === "submit" ? "กำลังบันทึก…" : "ส่งให้ผู้บริหารอนุมัติ"}
           </Button>
           <div className="grid grid-cols-[112px_1fr] gap-3">
             <Button variant="outline" onClick={goBack} disabled={pending}>
               ย้อนกลับ
             </Button>
-            <Button variant="outline" onClick={handleSaveDraft} disabled={pending}>
+            <Button variant="outline" onClick={handleSaveDraft} loading={pending && intent === "draft"} disabled={pending}>
               บันทึกร่าง
             </Button>
           </div>
         </StickyActionBar>
       )}
 
-      <CustomerPickerSheet open={customerPickerOpen} onOpenChange={setCustomerPickerOpen} customers={customers} onSelect={applyCustomer} />
+      <CustomerPickerSheet open={customerPickerOpen} onOpenChange={setCustomerPickerOpen} onSearch={onSearchCustomers} onSelect={applyCustomer} />
       <ProductPickerSheet
         open={productPickerOpen}
         onOpenChange={setProductPickerOpen}

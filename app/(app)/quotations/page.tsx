@@ -1,12 +1,13 @@
 import Link from "next/link";
 import { PlusIcon } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { LinkButton } from "@/components/shared/LinkButton";
 import { PageBody } from "@/components/layout/PageBody";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { StickyActionBar } from "@/components/layout/StickyActionBar";
 import { SearchInput } from "@/components/shared/SearchInput";
 import { UserAvatar } from "@/components/shared/UserAvatar";
 import { ListPagination } from "@/components/quotation/ListPagination";
+import { SortSelect } from "@/components/quotation/SortSelect";
 import { QuotationList } from "@/components/quotation/QuotationList";
 import type { QuotationListItem } from "@/components/quotation/QuotationCard";
 import { StatusFilterChips, type StatusFilterItem } from "@/components/quotation/StatusFilterChips";
@@ -14,15 +15,16 @@ import { requireUser } from "@/lib/auth/session";
 import { QUOTATION_STATUSES } from "@/lib/constants/quotationStatus";
 import { countQuotationsByStatus, listQuotations } from "@/lib/db/queries/quotations";
 import { formatThaiDate, getInitials } from "@/lib/utils";
-import { quotationListFilterSchema } from "@/lib/validation/quotation";
+import { quotationListFilterSchema, type QuotationListFilterInput } from "@/lib/validation/quotation";
 
 export const metadata = { title: "ใบเสนอราคา" };
 
 // สร้าง href ของหน้ารายการโดยคง filter ที่เหลือไว้ (ไม่ใส่ค่า default ลง URL)
-function listHref(f: { status?: string; q?: string; page?: number }) {
+function listHref(f: { status?: string; q?: string; sort?: string; page?: number }) {
   const p = new URLSearchParams();
   if (f.status) p.set("status", f.status);
   if (f.q) p.set("q", f.q);
+  if (f.sort && f.sort !== "newest") p.set("sort", f.sort);
   if (f.page && f.page > 1) p.set("page", String(f.page));
   const qs = p.toString();
   return qs ? `/quotations?${qs}` : "/quotations";
@@ -32,15 +34,15 @@ export default async function QuotationsPage({ searchParams }: PageProps<"/quota
   const user = await requireUser();
   // filter จาก URL — ค่าผิดรูปแบบถือว่าไม่กรอง (ไม่ error หน้า)
   const parsed = quotationListFilterSchema.safeParse(await searchParams);
-  const filter = parsed.success ? parsed.data : { page: 1 };
+  const filter: QuotationListFilterInput = parsed.success ? parsed.data : { page: 1, sort: "newest" };
   const isSale = user.role === "sale";
 
   const [result, counts] = await Promise.all([listQuotations(user, filter), countQuotationsByStatus(user)]);
   const totalAll = Object.values(counts).reduce((a, b) => a + b, 0);
 
   const chips: StatusFilterItem[] = [
-    { status: "all", count: totalAll, href: listHref({ q: filter.q }) },
-    ...QUOTATION_STATUSES.map((s) => ({ status: s, count: counts[s], href: listHref({ status: s, q: filter.q }) })),
+    { status: "all", count: totalAll, href: listHref({ q: filter.q, sort: filter.sort }) },
+    ...QUOTATION_STATUSES.map((s) => ({ status: s, count: counts[s], href: listHref({ status: s, q: filter.q, sort: filter.sort }) })),
   ];
   const items: QuotationListItem[] = result.items.map((r) => ({
     id: r.id,
@@ -55,6 +57,7 @@ export default async function QuotationsPage({ searchParams }: PageProps<"/quota
   const search = (className: string) => (
     <form method="get" action="/quotations" className={className}>
       {filter.status ? <input type="hidden" name="status" value={filter.status} /> : null}
+      {filter.sort !== "newest" ? <input type="hidden" name="sort" value={filter.sort} /> : null}
       <SearchInput name="q" defaultValue={filter.q ?? ""} placeholder="ค้นหาชื่อลูกค้า หรือ เลขที่ใบ" />
     </form>
   );
@@ -73,9 +76,9 @@ export default async function QuotationsPage({ searchParams }: PageProps<"/quota
           <>
             {search("hidden w-70 md:block")}
             {isSale ? (
-              <Button className="hidden md:inline-flex" render={<Link href="/quotations/new" />}>
-                <PlusIcon /> สร้างใบเสนอราคา
-              </Button>
+              <LinkButton href="/quotations/new" icon={<PlusIcon />} className="hidden md:inline-flex">
+                สร้างใบเสนอราคา
+              </LinkButton>
             ) : null}
           </>
         }
@@ -84,14 +87,21 @@ export default async function QuotationsPage({ searchParams }: PageProps<"/quota
         <StatusFilterChips items={chips} active={filter.status ?? "all"} />
       </PageHeader>
       <PageBody withActionBar={isSale}>
-        {filter.q ? (
+        <div className="flex items-center justify-between gap-3">
           <p className="text-xs text-muted-foreground">
-            ผลค้นหา “{filter.q}” · {result.total} ใบ ·{" "}
-            <Link href={listHref({ status: filter.status })} className="text-primary-hover">
-              ล้างคำค้น
-            </Link>
+            {filter.q ? (
+              <>
+                ผลค้นหา “{filter.q}” · {result.total} ใบ ·{" "}
+                <Link href={listHref({ status: filter.status, sort: filter.sort })} className="text-primary-hover">
+                  ล้างคำค้น
+                </Link>
+              </>
+            ) : (
+              <>{result.total} ใบ</>
+            )}
           </p>
-        ) : null}
+          <SortSelect value={filter.sort} params={{ status: filter.status, q: filter.q }} />
+        </div>
         <QuotationList
           items={items}
           showOwner={!isSale}
@@ -101,9 +111,9 @@ export default async function QuotationsPage({ searchParams }: PageProps<"/quota
       </PageBody>
       {isSale ? (
         <StickyActionBar>
-          <Button size="lg" render={<Link href="/quotations/new" />}>
-            <PlusIcon /> สร้างใบเสนอราคา
-          </Button>
+          <LinkButton href="/quotations/new" icon={<PlusIcon />} size="lg">
+            สร้างใบเสนอราคา
+          </LinkButton>
         </StickyActionBar>
       ) : null}
     </>

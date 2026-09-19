@@ -27,7 +27,7 @@ export function SubmitButton({ id, disabled }: { id: string; disabled?: boolean 
 
   return (
     <div className="flex flex-col gap-1">
-      <Button size="lg" className="md:h-10" disabled={disabled || pending || done} onClick={submit}>
+      <Button size="lg" className="md:h-10" disabled={disabled} loading={pending || done} onClick={submit}>
         {done ? "กำลังอัปเดตหน้า…" : pending ? "กำลังส่ง…" : "ส่งให้ผู้บริหารอนุมัติ"}
       </Button>
       {error ? (

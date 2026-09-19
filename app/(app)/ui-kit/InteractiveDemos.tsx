@@ -34,9 +34,10 @@ export function InteractiveDemos() {
         <CustomerPickerSheet
           open={customerOpen}
           onOpenChange={setCustomerOpen}
-          customers={[
-            { id: "c1", companyName: "บจก. ทาโกฟู้ดส์อินดัสทรี", addressLine: "99/12 ม.4", subDistrict: "บางปลา", district: "บางพลี", province: "สมุทรปราการ", postalCode: "10540", phone: null, taxId: "0105548012345", paymentType: "credit", creditDays: 30 },
-          ]}
+          onSearch={async () => ({
+            ok: true,
+            data: [{ id: "c1", companyName: "บจก. ทาโกฟู้ดส์อินดัสทรี", addressLine: "99/12 ม.4", subDistrict: "บางปลา", district: "บางพลี", province: "สมุทรปราการ", postalCode: "10540", phone: null, taxId: "0105548012345", paymentType: "credit", creditDays: 30 }],
+          })}
           onSelect={(c) => setPicked(c.companyName)}
         />
       </div>

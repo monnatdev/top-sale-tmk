@@ -1,6 +1,7 @@
 import { Button as ButtonPrimitive } from "@base-ui/react/button"
 import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "cn"
+import { Spinner } from "@/components/shared/Spinner"
 
 // ปรับจาก shadcn base-nova ให้ตรงดีไซน์: ปุ่มสูง ≥ 44px บนมือถือ, 40px บนเดสก์ท็อป, มุม 8px
 const buttonVariants = cva(
@@ -42,21 +43,36 @@ const buttonVariants = cva(
   }
 )
 
+type ButtonProps = ButtonPrimitive.Props &
+  VariantProps<typeof buttonVariants> & {
+    /** กำลังทำงาน: แสดง spinner แทนไอคอน + disabled (ใช้กับทุกปุ่มที่เรียก action/รอ navigation) */
+    loading?: boolean
+  }
+
 function Button({
   className,
   variant = "default",
   size = "default",
   nativeButton,
+  loading = false,
+  disabled,
+  children,
   ...props
-}: ButtonPrimitive.Props & VariantProps<typeof buttonVariants>) {
+}: ButtonProps) {
   return (
     <ButtonPrimitive
       data-slot="button"
+      data-loading={loading || undefined}
       className={cn(buttonVariants({ variant, size, className }))}
       // render={<Link/>} = ไม่ใช่ <button> จริง — บอก Base UI ให้ไม่คาดหวัง native semantics
       nativeButton={nativeButton ?? !props.render}
+      disabled={disabled || loading}
+      aria-busy={loading || undefined}
       {...props}
-    />
+    >
+      {loading ? <Spinner /> : null}
+      {children}
+    </ButtonPrimitive>
   )
 }
 

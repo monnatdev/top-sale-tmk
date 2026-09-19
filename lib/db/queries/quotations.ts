@@ -3,6 +3,7 @@ import { and, asc, count, desc, eq, ilike, or, sql } from "drizzle-orm";
 import { db, type DbClient } from "@/lib/db";
 import { scopeToUser } from "@/lib/auth/guards";
 import type { QuotationStatus } from "@/lib/constants/quotationStatus";
+import type { QuotationSort } from "@/lib/validation/quotation";
 import type { SessionUser } from "@/lib/auth/types";
 import {
   auditLog,
@@ -39,7 +40,16 @@ export type QuotationListFilter = {
   status?: QuotationStatus;
   /** ค้นหาชื่อลูกค้า หรือ เลขที่ใบ (ilike) */
   q?: string;
+  sort?: QuotationSort;
   page: number;
+};
+
+// ทุกแบบมี created_at เป็นตัวตัดสินท้ายสุด → ลำดับคงที่ข้ามหน้า (pagination ไม่สลับแถว)
+const ORDER_BY: Record<QuotationSort, () => ReturnType<typeof desc>[]> = {
+  newest: () => [desc(quotations.createdAt)],
+  oldest: () => [asc(quotations.createdAt)],
+  quote_date: () => [desc(quotations.quoteDate), desc(quotations.createdAt)],
+  customer: () => [asc(quotations.customerName), desc(quotations.createdAt)],
 };
 
 // escape % _ ของ ilike กัน pattern จาก user (Drizzle parameterize ค่าให้แล้ว แต่ wildcard ยังทำงาน)
@@ -61,7 +71,7 @@ export async function listQuotations(user: SessionUser, filter: QuotationListFil
   const [items, [{ total }]] = await Promise.all([
     dbx.query.quotations.findMany({
       where,
-      orderBy: [desc(quotations.createdAt)],
+      orderBy: ORDER_BY[filter.sort ?? "newest"](),
       limit: LIST_PAGE_SIZE,
       offset,
       columns: { id: true, quoteNumber: true, customerName: true, quoteDate: true, status: true, createdAt: true },

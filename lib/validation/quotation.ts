@@ -71,14 +71,27 @@ export type SaveDraftInput = z.infer<typeof saveDraftSchema>;
 
 export const quotationIdSchema = z.object({ id: z.uuid("ใบเสนอราคาไม่ถูกต้อง") });
 
+export const customerSearchSchema = z.object({ q: z.string().trim().max(100).default("") });
+
 // ตีกลับต้องมีเหตุผลเสมอ (เซลล์ต้องรู้ว่าแก้อะไร)
 export const rejectQuotationSchema = quotationIdSchema.extend({
   reason: z.string().trim().min(1, "กรุณาระบุเหตุผลที่ตีกลับ").max(500, "เหตุผลยาวเกิน 500 ตัวอักษร"),
 });
 
 // กรองหน้ารายการ (ใช้ในข้อ 9 แต่นิยามไว้ที่เดียว)
+export const QUOTATION_SORTS = ["newest", "oldest", "quote_date", "customer"] as const;
+export type QuotationSort = (typeof QUOTATION_SORTS)[number];
+export const SORT_LABEL: Record<QuotationSort, string> = {
+  newest: "สร้างล่าสุด",
+  oldest: "สร้างเก่าสุด",
+  quote_date: "วันที่เสนอราคา",
+  customer: "ชื่อลูกค้า ก–ฮ",
+};
+
 export const quotationListFilterSchema = z.object({
   status: z.enum(QUOTATION_STATUSES).optional(),
   q: z.string().trim().max(100).optional(),
+  sort: z.enum(QUOTATION_SORTS).default("newest"),
   page: z.coerce.number().int().min(1).default(1),
 });
+export type QuotationListFilterInput = z.infer<typeof quotationListFilterSchema>;
