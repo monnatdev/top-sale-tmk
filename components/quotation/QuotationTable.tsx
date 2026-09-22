@@ -35,7 +35,7 @@ export function QuotationTable({ items, showOwner, className }: QuotationTablePr
           className={cn(
             GRID,
             cols,
-            "border-b border-l-4 border-border-subtle px-5 py-4 text-foreground last:border-b-0 hover:bg-background",
+            "border-b border-l-4 border-border-subtle px-5 py-4 text-foreground last:border-b-0 transition-colors hover:bg-background active:bg-muted",
             STATUS_STYLE[item.status].borderL,
           )}
         >

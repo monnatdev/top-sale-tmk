@@ -30,10 +30,6 @@ export const STATUS_FLOW: readonly QuotationStatus[] = [
   "won",
 ];
 
-export function isQuotationStatus(value: string): value is QuotationStatus {
-  return (QUOTATION_STATUSES as readonly string[]).includes(value);
-}
-
 // ป้ายภาษาไทยของ audit_log.action (แสดงใน Timeline)
 export const AUDIT_ACTION_LABEL = {
   created: "สร้างใบเสนอราคา",

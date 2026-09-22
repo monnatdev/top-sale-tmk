@@ -3,8 +3,7 @@ import { cache } from "react";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getProfileById } from "@/lib/db/queries/profiles";
-import { ForbiddenError } from "@/lib/errors";
-import type { Role, SessionUser } from "./types";
+import type { SessionUser } from "./types";
 
 // cache() = เรียกกี่ครั้งใน request เดียวก็ query ครั้งเดียว
 export const getSessionUser = cache(async (): Promise<SessionUser | null> => {
@@ -28,9 +27,3 @@ export async function requireUser(): Promise<SessionUser> {
   return user;
 }
 
-// ใช้ในหน้าที่จำกัด role (เช่น หน้าตั้งค่าลายเซ็นของผู้บริหาร) — สิทธิ์ต่อ record ยังต้องเช็กที่ query/service
-export async function requireUserWithRole(...roles: Role[]): Promise<SessionUser> {
-  const user = await requireUser();
-  if (!roles.includes(user.role)) throw new ForbiddenError();
-  return user;
-}

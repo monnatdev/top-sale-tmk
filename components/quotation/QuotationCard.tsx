@@ -24,7 +24,7 @@ export function QuotationCard({ item, showOwner, className }: QuotationCardProps
     <Link
       href={`/quotations/${item.id}`}
       className={cn(
-        "flex flex-col gap-2 rounded-lg border border-border border-l-4 bg-card px-3.5 pt-3.5 pb-3 text-foreground",
+        "flex flex-col gap-2 rounded-lg border border-border border-l-4 bg-card px-3.5 pt-3.5 pb-3 text-foreground transition-colors hover:bg-background active:bg-muted",
         STATUS_STYLE[item.status].borderL,
         className,
       )}

@@ -13,7 +13,7 @@ const valid = {
   district: "บางพลี",
   province: "สมุทรปราการ",
   postalCode: "10540",
-  phone: "02-315-4477",
+  phone: "023154477",
   taxId: "0105548012345",
   paymentType: "credit",
   creditDays: 30,
@@ -47,6 +47,9 @@ describe("quotationDraftSchema", () => {
   it("รหัสไปรษณีย์ / เลขภาษี ต้องเป็นตัวเลขตามหลัก (ว่างได้)", () => {
     expect(quotationDraftSchema.safeParse({ ...valid, postalCode: "1054" }).success).toBe(false);
     expect(quotationDraftSchema.safeParse({ ...valid, taxId: "abc" }).success).toBe(false);
+    expect(quotationDraftSchema.safeParse({ ...valid, phone: "02-315-4477" }).success).toBe(false);
+    expect(quotationDraftSchema.safeParse({ ...valid, phone: "0812345678" }).success).toBe(true);
+    expect(quotationDraftSchema.safeParse({ ...valid, phone: "" }).success).toBe(true);
     expect(quotationDraftSchema.safeParse({ ...valid, postalCode: "", taxId: "" }).success).toBe(true);
   });
 

@@ -51,7 +51,7 @@ export function LoginForm({ action, mobile }: LoginFormProps) {
           <button
             type="button"
             onClick={() => setShowPassword((v) => !v)}
-            className="absolute top-1/2 right-3.5 -translate-y-1/2 text-2xs text-primary-hover"
+            className="absolute top-1/2 right-3.5 -translate-y-1/2 text-2xs text-primary-hover hover:underline"
           >
             {showPassword ? "ซ่อน" : "แสดง"}
           </button>

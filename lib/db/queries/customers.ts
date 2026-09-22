@@ -4,26 +4,6 @@ import { db, type DbClient } from "@/lib/db";
 import { customers, type NewCustomer } from "@/lib/db/schema";
 
 // ลูกค้าแชร์ทั้งบริษัท (ตัดสินใจ 2026-09-17) — ไม่ scope ตาม created_by
-export async function listCustomers(dbx: DbClient = db) {
-  return dbx.query.customers.findMany({
-    orderBy: [asc(customers.companyName)],
-    columns: {
-      id: true,
-      companyName: true,
-      addressLine: true,
-      subDistrict: true,
-      district: true,
-      province: true,
-      postalCode: true,
-      phone: true,
-      taxId: true,
-      paymentType: true,
-      creditDays: true,
-    },
-    limit: 500,
-  });
-}
-
 export const CUSTOMER_SEARCH_LIMIT = 20;
 
 // ค้นหาลูกค้าเก่าแบบ on-demand (sheet เลือกลูกค้า) — ว่าง = ล่าสุด 20 ราย · มีคำค้น = ชื่อ/เลขภาษี ilike

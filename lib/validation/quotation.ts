@@ -33,7 +33,11 @@ const quotationDraftFields = z
       .trim()
       .regex(/^(\d{5})?$/, "รหัสไปรษณีย์ต้องเป็นตัวเลข 5 หลัก")
       .default(""),
-    phone: optionalText(30),
+    phone: z
+      .string()
+      .trim()
+      .regex(/^(\d{9,10})?$/, "เบอร์โทรต้องเป็นตัวเลข 9–10 หลัก (ไม่ต้องใส่ขีด)")
+      .default(""),
     taxId: z
       .string()
       .trim()

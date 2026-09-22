@@ -111,7 +111,14 @@ function readCustomers(ws: ExcelJS.Worksheet): CustomerRow[] {
       if (paymentType === "credit") warn(SHEET_CUSTOMERS, r, `วันเครดิต "${creditRaw}" ต้องอยู่ระหว่าง 7–30 — ใช้ ${CREDIT_DAYS_DEFAULT}`);
       creditDays = CREDIT_DAYS_DEFAULT;
     }
-    rows.push({ row: r, companyName, ...addr, phone: cellText(ws, r, 7) || null, taxId, paymentType, creditDays });
+    // เบอร์โทร: แอปรับเฉพาะตัวเลข 9–10 หลัก (ตรงกับ Zod ในฟอร์ม) — ตัดขีด/ช่องว่าง · มีเบอร์ต่อ ("ต่อ 225") ต้องตัดออก
+    let phone: string | null = cellText(ws, r, 7).replace(/[\s-]/g, "") || null;
+    if (phone && !/^\d{9,10}$/.test(phone)) {
+      const digits = phone.match(/^\d{9,10}/)?.[0] ?? null;
+      warn(SHEET_CUSTOMERS, r, `เบอร์โทร "${cellText(ws, r, 7)}" ไม่ใช่ตัวเลข 9–10 หลัก — ${digits ? `ใช้ "${digits}"` : "เว้นว่างไว้"}`);
+      phone = digits;
+    }
+    rows.push({ row: r, companyName, ...addr, phone, taxId, paymentType, creditDays });
   }
   return rows;
 }

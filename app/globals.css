@@ -183,6 +183,12 @@
   a {
     @apply text-primary-hover;
   }
+  /* Tailwind v4 เลิกใส่ cursor:pointer ให้ปุ่ม — ใส่กลับให้ทุกปุ่ม/ลิงก์ที่กดได้ (ยกเว้น disabled) */
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]),
+  [role="option"] {
+    cursor: pointer;
+  }
   /* ช่องตัวเลข (ราคา) ไม่เอา spinner — ใช้ inputMode=decimal บนมือถือแทน */
   input[type="number"] {
     -moz-appearance: textfield;

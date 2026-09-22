@@ -85,7 +85,7 @@ export function CustomerPickerSheet({ open, onOpenChange, onSearch, onSelect }: 
                 setTerm("");
                 onOpenChange(false);
               }}
-              className="flex flex-col gap-0.5 rounded-lg border border-border p-3 text-left hover:bg-muted"
+              className="flex flex-col gap-0.5 rounded-lg border border-border p-3 text-left transition-colors hover:bg-muted active:bg-muted"
             >
               <span className="text-body font-medium">{c.companyName}</span>
               <span className="truncate text-2xs text-muted-foreground">

@@ -23,7 +23,7 @@ export function SidebarNav() {
               "flex items-center gap-2.5 rounded-md px-3 py-[11px] text-sm transition-colors",
               active
                 ? "bg-sidebar-primary font-medium text-sidebar-primary-foreground"
-                : "text-sidebar-muted hover:bg-sidebar-accent hover:text-sidebar-foreground",
+                : "text-sidebar-muted transition-colors hover:bg-sidebar-accent hover:text-sidebar-foreground",
             )}
           >
             {label}

@@ -3,9 +3,9 @@
 import { useMemo, useState } from "react";
 import { CheckIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { FormField } from "@/components/shared/FormField";
+import { PriceInput } from "@/components/shared/PriceInput";
 import { ProductThumbnail } from "@/components/shared/ProductThumbnail";
 import { SearchInput } from "@/components/shared/SearchInput";
 import { cn } from "@/lib/utils";
@@ -87,7 +87,7 @@ export function ProductPickerSheet({ open, onOpenChange, products, excludeIds = 
                 onClick={() => setSelectedId(p.id)}
                 className={cn(
                   "flex items-center gap-3 rounded-lg border p-3 text-left",
-                  active ? "border-primary bg-primary-soft" : "border-border hover:bg-muted",
+                  active ? "border-primary bg-primary-soft" : "border-border transition-colors hover:bg-muted active:bg-muted",
                 )}
               >
                 <ProductThumbnail src={p.imageUrl} alt={p.name} size="sm" />
@@ -111,16 +111,12 @@ export function ProductPickerSheet({ open, onOpenChange, products, excludeIds = 
 
         <div className="flex flex-col gap-2 border-t border-border pt-3.5">
           <FormField label="ราคาส่ง/ถุง" htmlFor="pick-price" trailing="บาท">
-            <Input
+            <PriceInput
               id="pick-price"
-              type="number"
-              inputMode="decimal"
-              min={0}
-              step="0.01"
               value={price}
-              onChange={(e) => setPrice(e.target.value)}
+              onValueChange={setPrice}
               onKeyDown={(e) => e.key === "Enter" && confirm()}
-              className="numeric h-14 text-2xl font-medium focus-visible:border-primary"
+              className="h-14 text-2xl font-medium focus-visible:border-primary"
               placeholder="0"
             />
           </FormField>

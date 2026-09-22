@@ -115,7 +115,6 @@
 | `Card` + `CardHeader/Title/Content/Footer` | ขาว ขอบ 1px มุม 10px (ใช้ผ่าน `SectionCard` เป็นหลัก) |
 | `Sheet` | base ของ `ProductPickerSheet`/`CustomerPickerSheet` — `side="bottom"` + class override ให้เป็น side ขวาบน md (ดูตัวอย่างในสองตัวนั้น) |
 | `Dialog` | ยืนยัน/กรอกเหตุผล — ดู `ApprovalActions` · ใส่ `className="bg-card"` ที่ `DialogContent` · ปุ่มยืนยันอยู่ขวาใน `DialogFooter` |
-| `Separator`, `Tabs` | ยังไม่ปรับ — ใช้ตามค่า shadcn |
 
 ### 2.2 `components/layout/` — โครงหน้า
 
@@ -139,6 +138,7 @@
 | `SectionCard` | การ์ดขาวมีหัว — block พื้นฐานทุกหน้า | `title`, `step` ("01"), `meta` ("4 รายการ"), `action`, `flush` (รายการเต็มความกว้าง), `divided` |
 | `FormField` | ครอบทุกช่องกรอกในฟอร์ม | `label`, `hint` (accent), `trailing` (mono ขวา), `error` |
 | `SearchInput` | ช่องค้นหา (พื้นครีม) | เหมือน Input |
+| `PriceInput` (client) | ช่องกรอกราคา — แสดง comma คั่นหลักพันขณะพิมพ์, ทศนิยม ≤ 2, แป้นตัวเลขบนมือถือ · ส่งค่าดิบไม่มี comma ผ่าน `onValueChange` | `value: number\|string`, `onValueChange(raw)`, ที่เหลือเหมือน Input |
 | `Spinner` | spinner มาตรฐาน (Loader2 หมุน) — ใช้ใน Button loading / nav / sheet | `className`, `label` |
 | `LinkButton` (client) | ปุ่มที่เป็นลิงก์ — แสดง spinner จนหน้าใหม่มา (`useLinkStatus`) **ใช้แทน `Button render={<Link/>}` เสมอ** | `href`, `icon`, + props ของ Button |
 | `SegmentedControl` (client) | เลือก 2–3 ทาง: ลูกค้าเก่า/ใหม่, เครดิต/เงินสด | `options`, `value`, `onChange`, `size` |
@@ -247,6 +247,8 @@
 | กล่องอธิบาย | `<InfoNotice>` | `bg-primary-soft` เขียนเอง |
 | ข้อความส้ม/ลิงก์ | `text-primary-hover` | `text-primary` (ส้มสว่างใช้กับพื้นทึบเท่านั้น) |
 | สีจากดีไซน์ที่ยังไม่มี token | เพิ่มที่ `globals.css` + ตารางข้อ 1 ก่อน | `bg-[#...]` |
+| แถว/การ์ด/ตัวเลือกที่กดได้ (ไม่ใช่ Button) | `transition-colors hover:bg-background` (บนพื้น card) หรือ `hover:bg-muted` (บนพื้นแอป) **+ `active:bg-muted`** — มือถือไม่มี hover ต้องมี feedback ตอนแตะ | ไม่ใส่อะไรเลย / `hover:` อย่างเดียว |
+| cursor ปุ่ม | ไม่ต้องใส่ — `globals.css` ให้ `button`, `[role=button]`, `[role=option]` เป็น pointer แล้ว (Tailwind v4 ไม่ใส่ให้) | `cursor-pointer` รายตัว |
 
 ---
 

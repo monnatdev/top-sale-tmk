@@ -9,6 +9,7 @@ import { PageBody } from "@/components/layout/PageBody";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { StickyActionBar } from "@/components/layout/StickyActionBar";
 import { FormField } from "@/components/shared/FormField";
+import { PriceInput } from "@/components/shared/PriceInput";
 import { InfoNotice } from "@/components/shared/InfoNotice";
 import { SectionCard } from "@/components/shared/SectionCard";
 import { SegmentedControl } from "@/components/shared/SegmentedControl";
@@ -133,6 +134,10 @@ export function QuotationForm({ quotationId, quoteNumber, initial, products, onS
       paymentType: c.paymentType,
       creditDays: c.paymentType === "credit" ? c.creditDays : f.creditDays,
     }));
+
+  // ช่องที่รับเฉพาะตัวเลข (เบอร์โทร/เลขภาษี/ไปรษณีย์) — ตัดอักขระอื่นทิ้งตั้งแต่ตอนพิมพ์ · server ยัง validate ซ้ำ
+  const setDigits = (key: "phone" | "taxId" | "postalCode", max: number) => (e: React.ChangeEvent<HTMLInputElement>) =>
+    set(key, e.target.value.replace(/\D/g, "").slice(0, max));
 
   const setPrice = (productId: string, raw: string) => {
     const n = Number(raw);
@@ -289,10 +294,10 @@ export function QuotationForm({ quotationId, quoteNumber, initial, products, onS
                   )}
                 </FormField>
                 <FormField label="เบอร์โทร" htmlFor="phone" error={fieldError("phone")}>
-                  <Input id="phone" className="mono" inputMode="tel" value={form.phone} onChange={(e) => set("phone", e.target.value)} />
+                  <Input id="phone" className="mono" inputMode="tel" maxLength={10} value={form.phone} onChange={setDigits("phone", 10)} aria-invalid={!!fieldError("phone") || undefined} />
                 </FormField>
                 <FormField label="เลขผู้เสียภาษี" htmlFor="taxId" error={fieldError("taxId")} className="md:order-last">
-                  <Input id="taxId" className="mono" inputMode="numeric" maxLength={13} value={form.taxId} onChange={(e) => set("taxId", e.target.value)} aria-invalid={!!fieldError("taxId") || undefined} />
+                  <Input id="taxId" className="mono" inputMode="numeric" maxLength={13} value={form.taxId} onChange={setDigits("taxId", 13)} aria-invalid={!!fieldError("taxId") || undefined} />
                 </FormField>
                 <FormField label="ที่อยู่ · เลขที่ / หมู่ / ถนน" htmlFor="addressLine" className="md:col-span-2">
                   <Input id="addressLine" value={form.addressLine} onChange={(e) => set("addressLine", e.target.value)} />
@@ -310,7 +315,7 @@ export function QuotationForm({ quotationId, quoteNumber, initial, products, onS
                     <Input id="province" value={form.province} onChange={(e) => set("province", e.target.value)} />
                   </FormField>
                   <FormField label="รหัสไปรษณีย์" htmlFor="postalCode" error={fieldError("postalCode")}>
-                    <Input id="postalCode" className="numeric" inputMode="numeric" maxLength={5} value={form.postalCode} onChange={(e) => set("postalCode", e.target.value)} aria-invalid={!!fieldError("postalCode") || undefined} />
+                    <Input id="postalCode" className="numeric" inputMode="numeric" maxLength={5} value={form.postalCode} onChange={setDigits("postalCode", 5)} aria-invalid={!!fieldError("postalCode") || undefined} />
                   </FormField>
                 </div>
               </div>
@@ -392,7 +397,7 @@ export function QuotationForm({ quotationId, quoteNumber, initial, products, onS
             <NoteList
               notes={form.notes.map((text, i) => ({ id: String(i), text }))}
               renderTrailing={(n) => (
-                <button type="button" aria-label="ลบหมายเหตุ" className="shrink-0 text-destructive" onClick={() => set("notes", form.notes.filter((_, i) => String(i) !== n.id))}>
+                <button type="button" aria-label="ลบหมายเหตุ" className="shrink-0 rounded-sm p-1 text-destructive transition-colors hover:bg-destructive/10" onClick={() => set("notes", form.notes.filter((_, i) => String(i) !== n.id))}>
                   <XIcon className="size-3.5" />
                 </button>
               )}
@@ -492,15 +497,11 @@ function ProductSection({
         <PriceTable
           items={items}
           renderPrice={(item) => (
-            <Input
-              type="number"
-              inputMode="decimal"
-              min={0}
-              step="0.01"
+            <PriceInput
               aria-label={`ราคา ${item.name}`}
-              value={item.price === 0 ? "" : String(item.price)}
-              onChange={(e) => onPrice(item.id, e.target.value)}
-              className="numeric h-10 w-24 text-lg md:h-10 md:w-30"
+              value={item.price}
+              onValueChange={(raw) => onPrice(item.id, raw)}
+              className="h-10 w-24 text-lg md:h-10 md:w-30"
             />
           )}
           renderTrailing={(item) => (
