@@ -122,7 +122,7 @@
 | component | ใช้เมื่อ | props สำคัญ |
 |---|---|---|
 | `AppShell` | ครอบทุกหน้าหลังล็อกอิน (อยู่ใน `app/(app)/layout.tsx` แล้ว) | `user: { name, initials, role }` |
-| `Sidebar` / `SidebarNav` | sidebar ink 240px เดสก์ท็อป (AppShell เรียกให้) | — |
+| `Sidebar` / `SidebarNav` | sidebar ink 240px เดสก์ท็อป — sticky สูงเท่าจอ โปรไฟล์/ออกจากระบบชิดล่างเสมอ (AppShell เรียกให้) | — |
 | `BottomNav` | แถบเมนูล่าง 4 ช่อง มือถือ (AppShell เรียกให้) | — |
 | `navItems.ts` | รายการเมนู (3 อันใน MVP — "ลูกค้า" ตัดออกจนกว่าจะมีหน้า) + `isNavActive` | แก้เมนูที่นี่ที่เดียว |
 | `PageHeader` | แถบหัวขาวทุกหน้า (sticky มือถือ) | `title`, `subtitle`, `back`, `aside` (StatusBadge), `actions` (ปุ่ม/ค้นหา เดสก์ท็อป), `children` (แถวค้นหา/chips) |

@@ -101,6 +101,23 @@ export function QuotationForm({ quotationId, quoteNumber, initial, products, onS
 
   const customerMode = form.customerId ? "existing" : "new";
 
+  // สลับเป็น "ลูกค้าใหม่" → ล้างข้อมูลลูกค้าที่ดึงมาจากลูกค้าเก่าทั้งชุด (คงวันที่/สินค้า/หมายเหตุไว้)
+  const clearCustomer = () =>
+    setForm((f) => ({
+      ...f,
+      customerId: null,
+      companyName: "",
+      addressLine: "",
+      subDistrict: "",
+      district: "",
+      province: "",
+      postalCode: "",
+      phone: "",
+      taxId: "",
+      paymentType: EMPTY.paymentType,
+      creditDays: EMPTY.creditDays,
+    }));
+
   const applyCustomer = (c: CustomerOption) =>
     setForm((f) => ({
       ...f,
@@ -233,7 +250,7 @@ export function QuotationForm({ quotationId, quoteNumber, initial, products, onS
                 size="sm"
                 className="hidden w-55 md:grid"
                 value={customerMode}
-                onChange={(v) => (v === "existing" ? setCustomerPickerOpen(true) : set("customerId", null))}
+                onChange={(v) => (v === "existing" ? setCustomerPickerOpen(true) : clearCustomer())}
                 options={[
                   { value: "existing", label: "ลูกค้าเก่า" },
                   { value: "new", label: "ลูกค้าใหม่" },
@@ -245,7 +262,7 @@ export function QuotationForm({ quotationId, quoteNumber, initial, products, onS
               <SegmentedControl
                 className="md:hidden"
                 value={customerMode}
-                onChange={(v) => (v === "existing" ? setCustomerPickerOpen(true) : set("customerId", null))}
+                onChange={(v) => (v === "existing" ? setCustomerPickerOpen(true) : clearCustomer())}
                 options={[
                   { value: "existing", label: "ลูกค้าเก่า" },
                   { value: "new", label: "ลูกค้าใหม่" },

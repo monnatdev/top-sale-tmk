@@ -36,22 +36,19 @@ curl localhost:3000/api/health   # ต้องได้ {"ok":true,"db":"connec
 | `npm run dev` | dev server |
 | `npm run typecheck` | ตรวจ TypeScript |
 | `npm test` | unit test (ไม่แตะ DB) |
-| `npm run test:e2e` | Playwright e2e ต่อ dev server (`tests/e2e/`) — ใช้ผู้ใช้ seed + DB dev · สร้างใบ "(e2e …)" จริงใน DB · ต้องมีลายเซ็นผู้บริหาร · ครั้งแรก `npx playwright install chromium` |
+| `npm run test:e2e` | Playwright e2e (`tests/e2e/`) — เปิด dev server เองที่ port 3778 · ถ้า `npm run dev` เปิดอยู่แล้วให้รัน `E2E_BASE_URL=http://localhost:3000 npm run test:e2e` (Next 16 ไม่ให้เปิด dev ซ้อน) — ใช้ผู้ใช้ seed + DB dev · สร้างใบ "(e2e …)" จริงใน DB · ต้องมีลายเซ็นผู้บริหาร · ครั้งแรก `npx playwright install chromium` |
 | `npm run test:db` | test ที่ต่อ DB จริง (`*.db.test.ts`) — ใช้ `.env.local` (dev) · สร้างผู้ใช้ชั่วคราว `zztest-*` + ใบ `QT-9999-xxxx` แล้วลบทิ้งเอง · ห้ามชี้ prod |
 | `npm run db:generate` | สร้าง migration จาก `lib/db/schema.ts` → `drizzle/` |
 | `npm run db:migrate` | รัน migration ไปที่ `DIRECT_URL` |
-| `npm run db:seed` | ใส่ข้อมูลตั้งต้น (สินค้า 4 ตัว) — รันซ้ำได้ |
+| `npm run db:seed` | สินค้าตัวอย่างจากดีไซน์ 4 ตัว — **ใช้เฉพาะ dev** · prod ใช้ `db:import` |
+| `npm run db:import` | import สินค้า + ลูกค้าเก่า + รูปสินค้า จาก `data/import/` (ดูข้อ 8) — รันซ้ำได้ · `-- --dry-run` เช็กก่อนไม่เขียน |
 | `npm run storage:setup` | สร้าง bucket private `product-images`, `signatures` (≤2MB png/jpg/webp) — รันซ้ำได้ |
 | `SEED_PASSWORD=… npm run db:seed:users` | สร้าง auth user + profile ตั้งต้น (แก้รายชื่อใน `scripts/seed-users.ts`) — มีแล้วข้าม ไม่รีเซ็ตรหัส |
 | `npm run db:studio` | เปิด Drizzle Studio ดูข้อมูล |
 
-## 5. Supabase Auth — ปิดสมัครสมาชิก
-Authentication → Providers → Email → **ปิด "Allow new users to sign up"** (ระบบไม่มีหน้าสมัคร สร้าง user ผ่าน seed เท่านั้น — ทำในข้อ 3)
-
-## 6. Storage
-สร้าง bucket `product-images` และ `signatures` เป็น **Private** ทั้งคู่ (ทำในข้อ 4)
-
 ## 5. ผู้ใช้และการล็อกอิน
+
+- Supabase → Authentication → Providers → Email → **ปิด "Allow new users to sign up"**
 
 - ไม่มีหน้าสมัคร/ลืมรหัส — เพิ่มผู้ใช้ด้วย `scripts/seed-users.ts` (แก้ array `USERS` แล้วรันใหม่) หรือ Supabase dashboard → Authentication → Add user แล้วเพิ่มแถว `profiles` ให้ตรง id
 - พนักงานล็อกอินด้วย **ชื่อผู้ใช้** (เช่น `somchai.s`) — ระบบแปลงเป็นอีเมลภายใน `<username>@organicpower.internal` ให้เอง (`lib/auth/username.ts`)
@@ -60,13 +57,13 @@ Authentication → Providers → Email → **ปิด "Allow new users to sign 
 
 ## 6. ลายเซ็นผู้บริหาร + รูปสินค้า (Storage — ทำมือใน MVP)
 
-> รูปสินค้าใน bucket จะปรากฏในคอลัมน์ "ภาพสินค้า" ของ PDF อัตโนมัติ (ตัดเป็น 62×46 pt) — ยังไม่แสดงในหน้าเว็บ
+> รูปสินค้าใน bucket แสดงในหน้าเว็บผ่าน `/api/product-images/<path>` (เช็ก session + ย่อ 200px, URL คงที่ cache ได้) และใน PDF (ดาวน์โหลดตรงจาก bucket ตอน gen) · signed URL ใช้เฉพาะลายเซ็น
 
 1. `npm run storage:setup` (ครั้งเดียวต่อโปรเจกต์)
 2. **ลายเซ็น**: Supabase → Storage → bucket `signatures` → Upload ไฟล์ png พื้นโปร่ง/ขาว (แนะนำกว้าง ~600px) เช่น `wirat.png`
    → Table Editor → `profiles` → แถวผู้บริหาร → `signature_path` = `wirat.png` (path ใน bucket ไม่ใช่ URL)
    → ผู้บริหารเปิด `/settings` ต้องเห็นรูปลายเซ็น · ถ้ายังไม่ตั้ง จะกด "อนุมัติ + เซ็น" ไม่ได้
-3. **รูปสินค้า**: bucket `product-images` → upload → `products.image_path` = ชื่อไฟล์ (แสดงใน PDF/ตารางตั้งแต่ข้อ 7)
+3. **รูปสินค้า**: ปกติมาจาก `db:import` (ข้อ 8) · เพิ่มมือ: bucket `product-images` → upload → `products.image_path` = ชื่อไฟล์
 4. bucket เป็น private ทั้งคู่ — แอปสร้าง signed URL อายุ 10 นาทีฝั่ง server เท่านั้น · ลายเซ็นไม่ถูกส่งไปหน้าเซลล์ (เห็นแค่ชื่อ/วันที่)
 
 ผู้บริหารเปลี่ยนลายเซ็นทีหลัง → ใบที่อนุมัติไปแล้วยังใช้ path เดิมที่ snapshot ไว้ (`quotations.signature_path`) — อย่าลบไฟล์เก่าออกจาก bucket
@@ -75,3 +72,18 @@ Authentication → Providers → Email → **ปิด "Allow new users to sign 
 
 แก้ที่ `lib/constants/company.ts` — ชื่อไทย/อังกฤษ, ที่อยู่, โทร, เลขผู้เสียภาษี, ตำแหน่งผู้เซ็น, ย่อหน้าเปิด
 **ค่าปัจจุบันเป็นตัวอย่างจากดีไซน์ ต้องแก้ก่อนส่งลูกค้าจริง** · โลโก้ยังเป็นกล่อง placeholder (ดู UI-KIT ข้อ 5)
+
+## 8. Import master data (สินค้า + ลูกค้าเก่า)
+
+1. ส่ง `docs/templates/master-data-template.xlsx` ให้ลูกค้ากรอก (มีแท็บคำแนะนำในไฟล์) พร้อมขอไฟล์รูปสินค้า
+2. วางไฟล์: `data/import/master-data.xlsx` + รูปที่ `data/import/images/<ชื่อไฟล์รูปตามที่กรอกในคอลัมน์ "ชื่อไฟล์รูป">`
+   — โฟลเดอร์ `data/` อยู่ใน `.gitignore` (ข้อมูลจริง/PII) · **ห้ามวางใน `public/`** เพราะจะเปิดให้ดาวน์โหลดได้ทั้งอินเทอร์เน็ต
+3. `npm run db:import -- --dry-run` → อ่านผลและ "⚠ ข้อควรตรวจ" (รหัสไปรษณีย์/เลขภาษีผิดหลัก, รูปหาย, ประเภทชำระผิด)
+4. `npm run db:import` → เขียนจริง (ชี้ `DIRECT_URL` + Storage ของ env ที่ต้องการ)
+
+สคริปต์ทำอะไร:
+- ตัดคำนำหน้า ตำบล/ต./แขวง · อำเภอ/อ./เขต · จังหวัด/จ. ออก เก็บชื่อล้วน (แอปเติมคำนำหน้าเองตอนแสดง — กรุงเทพฯ ใช้ แขวง/เขต) · "กรุงเทพฯ" → "กรุงเทพมหานคร"
+- รูป: หมุนตาม EXIF, ย่อด้านยาวสุด 1200px, แปลง jpeg → อัปโหลดเป็น `product-images/<product id>.jpg` (ไฟล์ต้นฉบับใหญ่แค่ไหนก็ได้)
+- idempotent: สินค้า match (ชื่อ, นน./ถุง) · ลูกค้า match (ชื่อบริษัท, ที่อยู่บรรทัดแรก) → มีแล้วอัปเดต ไม่สร้างซ้ำ · บริษัทเดียวกันหลายสาขา = หลายแถวได้
+- `customers.created_by` = ผู้บริหารคนแรกที่ active (ลูกค้าเห็นทั้งบริษัทอยู่แล้ว)
+- ไม่ลบ/ปิดสินค้าที่ไม่อยู่ในไฟล์ — ถ้าจะเลิกขาย ตั้ง `products.is_active = false` ใน Table Editor

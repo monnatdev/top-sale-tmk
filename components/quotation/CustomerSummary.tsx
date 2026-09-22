@@ -1,4 +1,4 @@
-import { cn } from "@/lib/utils";
+import { cn, formatThaiAddress, isBangkok } from "@/lib/utils";
 
 export type CustomerSummaryData = {
   name: string;
@@ -41,7 +41,7 @@ export function CustomerSummary({ data, variant = "compact", className }: Custom
         {cell("เบอร์โทร", data.phone ?? "—", true)}
         {cell("เลขผู้เสียภาษี", data.taxId ?? "—", true)}
         {cell("ที่อยู่ · เลขที่ / หมู่ / ถนน", data.addressLine)}
-        {cell("ตำบล · อำเภอ", `${data.subDistrict} · ${data.district}`)}
+        {cell(isBangkok(data.province) ? "แขวง · เขต" : "ตำบล · อำเภอ", `${data.subDistrict} · ${data.district}`)}
         {cell("จังหวัด · รหัสไปรษณีย์", <>{data.province} <span className="mono">{data.postalCode}</span></>)}
         {cell("ประเภท", paymentLabel(data))}
         {cell("วันที่เสนอราคา", data.quoteDate, true)}
@@ -53,9 +53,7 @@ export function CustomerSummary({ data, variant = "compact", className }: Custom
     <div className={className}>
       <div className="text-sm font-semibold">{data.name}</div>
       <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-        {data.addressLine} ต.{data.subDistrict}
-        <br />
-        อ.{data.district} จ.{data.province} {data.postalCode}
+        {formatThaiAddress(data)}
         {data.phone || data.taxId ? (
           <>
             <br />

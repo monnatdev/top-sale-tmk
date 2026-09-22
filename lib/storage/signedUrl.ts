@@ -18,6 +18,14 @@ export function getSignatureUrl(path: string | null | undefined) {
   return getSignedUrl(BUCKETS.signatures, path);
 }
 
-export function getProductImageUrl(path: string | null | undefined) {
-  return getSignedUrl(BUCKETS.productImages, path);
+
+// รูปสินค้าบนหน้าเว็บไม่ใช้ signed URL (หมดอายุ 10 นาที → next/image ดึงซ้ำแล้วได้ 400 เมื่อฟอร์มเปิดค้าง)
+// ใช้ route ของเราเองที่เช็ก session + ย่อรูป → URL คงที่ cache ได้
+export function productImageUrl(path: string | null | undefined): string | null {
+  return path ? `/api/product-images/${encodeURIComponent(path)}` : null;
+}
+
+// เติม imageUrl ให้แถวที่มี imagePath (สินค้า master / รายการในใบ)
+export function withProductImageUrls<T extends { imagePath: string | null }>(rows: readonly T[]): (T & { imageUrl: string | null })[] {
+  return rows.map((r) => ({ ...r, imageUrl: productImageUrl(r.imagePath) }));
 }

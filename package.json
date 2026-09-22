@@ -18,6 +18,7 @@
     "db:seed": "tsx scripts/seed.ts",
     "db:seed:users": "tsx scripts/seed-users.ts",
     "storage:setup": "tsx scripts/setup-storage.ts",
+    "db:import": "tsx scripts/import-master.ts",
     "db:studio": "drizzle-kit studio"
   },
   "dependencies": {
@@ -49,6 +50,8 @@
     "drizzle-kit": "^0.31.10",
     "eslint": "^9",
     "eslint-config-next": "16.3.5",
+    "exceljs": "^4.4.0",
+    "sharp": "^0.35.4",
     "tailwindcss": "^4",
     "tsx": "^4.23.13",
     "typescript": "^5",

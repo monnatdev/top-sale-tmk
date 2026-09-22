@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { SearchInput } from "@/components/shared/SearchInput";
+import { formatThaiAddress } from "@/lib/utils";
 import { Spinner } from "@/components/shared/Spinner";
 import type { ActionResult } from "@/lib/actionResult";
 import type { PaymentType } from "@/lib/db/schema";
@@ -34,25 +35,19 @@ const DEBOUNCE_MS = 250;
 // เลือกลูกค้าเก่า — โหลดตอนเปิด + ค้นหาแบบ on-demand (ไม่โหลดรายชื่อทั้งบริษัทมากับหน้า)
 export function CustomerPickerSheet({ open, onOpenChange, onSearch, onSelect }: CustomerPickerSheetProps) {
   const [term, setTerm] = useState("");
-  const [results, setResults] = useState<CustomerOption[] | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  // ผลลัพธ์ผูกกับคำค้นที่โหลดมา → loading = คำค้นปัจจุบันยังไม่มีผล (ไม่ต้อง setState ใน effect)
+  const [loaded, setLoaded] = useState<{ term: string; results: CustomerOption[] | null; error: string | null }>({ term: "", results: null, error: null });
   const requestId = useRef(0);
+  const loading = open && (loaded.term !== term || (loaded.results === null && loaded.error === null));
+  const { results, error } = loaded;
 
   useEffect(() => {
     if (!open) return;
     const id = ++requestId.current;
-    setLoading(true);
     const timer = setTimeout(async () => {
       const res = await onSearch({ q: term });
       if (id !== requestId.current) return; // มีคำค้นใหม่กว่าแล้ว ทิ้งผลนี้
-      setLoading(false);
-      if (!res.ok) {
-        setError(res.message);
-        return;
-      }
-      setError(null);
-      setResults(res.data);
+      setLoaded(res.ok ? { term, results: res.data, error: null } : { term, results: null, error: res.message });
     }, term ? DEBOUNCE_MS : 0);
     return () => clearTimeout(timer);
   }, [open, term, onSearch]);
@@ -94,7 +89,7 @@ export function CustomerPickerSheet({ open, onOpenChange, onSearch, onSelect }: 
             >
               <span className="text-body font-medium">{c.companyName}</span>
               <span className="truncate text-2xs text-muted-foreground">
-                {[c.subDistrict && `ต.${c.subDistrict}`, c.district && `อ.${c.district}`, c.province && `จ.${c.province}`].filter(Boolean).join(" ") || "ยังไม่มีที่อยู่"}
+                {formatThaiAddress({ ...c, addressLine: "", postalCode: "" }) || "ยังไม่มีที่อยู่"}
                 {c.taxId ? ` · ${c.taxId}` : ""}
               </span>
             </button>

@@ -7,14 +7,15 @@ import type { CustomerSummaryData } from "./CustomerSummary";
 import type { LedgerItem } from "./LedgerRow";
 import type { TimelineEntry } from "./Timeline";
 
-export function toLedgerItems(items: QuotationDetail["items"]): LedgerItem[] {
+// items ที่ผ่าน withProductImageUrls แล้ว (หน้า server เติม signed URL ให้)
+export function toLedgerItems(items: (QuotationDetail["items"][number] & { imageUrl: string | null })[]): LedgerItem[] {
   return items.map((it) => ({
     id: it.id,
     name: it.productName,
     spec: it.packagingSpec,
     weightKg: it.weightPerBag,
     price: it.pricePerBag,
-    imageUrl: null, // signed URL ของรูปมาในข้อ 7 (PDF)
+    imageUrl: it.imageUrl,
   }));
 }
 

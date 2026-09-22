@@ -15,7 +15,7 @@ const SIZE: Record<NonNullable<ProductThumbnailProps["size"]>, { w: number; h: n
   lg: { w: 72, h: 56, cls: "h-14 w-18" },
 };
 
-// รูปสินค้า — ไม่มีรูป = ลายทาง placeholder (รอภาพกระสอบจริง)
+// รูปสินค้า — src มาจาก /api/product-images (ย่อไว้แล้ว 200px จึง unoptimized) · ไม่มีรูป = ลายทาง placeholder
 export function ProductThumbnail({ src, alt = "", size = "sm", className }: ProductThumbnailProps) {
   const { w, h, cls } = SIZE[size];
   return (
@@ -28,7 +28,7 @@ export function ProductThumbnail({ src, alt = "", size = "sm", className }: Prod
       )}
     >
       {src ? (
-        <Image src={src} alt={alt} width={w} height={h} className="size-full object-cover" />
+        <Image src={src} alt={alt} width={w} height={h} unoptimized className="size-full object-cover" />
       ) : null}
     </div>
   );

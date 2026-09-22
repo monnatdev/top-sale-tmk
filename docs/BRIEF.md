@@ -147,7 +147,7 @@ UI ภาษาไทยทั้งหมด, mobile-first (พนักงา�
 1. **Setup** — Next.js + TS + โครงโฟลเดอร์ตามข้อ 3 + เชื่อม Supabase + ตั้ง env (dev/prod แยก) ✅
 2. **Database schema** — สร้างตารางตามข้อ 4 + index ตามข้อ 9 + enable RLS (ไม่มี policy) ตามข้อ 5 ✅
 3. **Auth + สิทธิ์** — login (ไม่มีสมัคร/ลืมรหัส), middleware ตรวจ session, helper เช็ก role, seed user แรก (admin) ✅
-4. **Master data** — ~~CRUD สินค้า (+ อัปโหลดรูป) และลูกค้า~~ → **ข้าม (2026-09-17): MVP เพิ่มสินค้า/ลูกค้าผ่าน Supabase Table Editor เอง** · รูปสินค้าอัปโหลดเข้า bucket `product-images` แล้วใส่ path ใน `products.image_path` · ลูกค้าใหม่สร้างได้จากใน flow สร้างใบ (ข้อ 5)
+4. **Master data** — ~~CRUD สินค้า (+ อัปโหลดรูป) และลูกค้า~~ → **ไม่มีหน้า CRUD ใน MVP** · นำเข้าครั้งแรกด้วย Excel template + `npm run db:import` (2026-09-22: import ข้อมูลจริง สินค้า 11 / ลูกค้า 33 / รูป 11 ลง dev แล้ว — ดู SETUP.md ข้อ 8) · แก้ทีหลังผ่าน Supabase Table Editor · ลูกค้าใหม่สร้างได้จากใน flow สร้างใบ (ข้อ 5)
 5. **สร้างใบเสนอราคา** — หน้าสร้าง (wizard มือถือ / sections เว็บ) + เลือกลูกค้าเก่า/ใหม่ + เพิ่มสินค้า (4 คอลัมน์ ไม่มีจำนวน/ยอด) + หมายเหตุ + บันทึกร่าง/ส่งอนุมัติ ✅ (รวมหน้าดูใบแบบอ่านอย่างเดียว `/quotations/[id]`)
 6. **วงจรอนุมัติ** — state machine ข้อ 6 + อนุมัติ+เซ็น + ตีกลับ+เหตุผล + ล็อกหลังอนุมัติ + audit log ✅ (ลายเซ็นอัปโหลดมือใน Storage — ดู SETUP.md ข้อ 6)
 7. **Export PDF** — template Organic Power + แปะลายเซ็น + auto เปลี่ยนสถานะเป็น "ส่งลูกค้าแล้ว" ✅ (@react-pdf/renderer · ข้อมูลบริษัทใน `lib/constants/company.ts` **ยังเป็นค่าตัวอย่าง ต้องแก้**)

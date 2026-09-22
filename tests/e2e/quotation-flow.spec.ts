@@ -7,19 +7,33 @@ test.describe.configure({ mode: "serial" });
 
 const CUSTOMER = `หจก. ข้าวทองเจริญ (e2e ${Date.now().toString(36)})`;
 let quotationId = "";
+// ชื่อสินค้าตัวที่ 2 ในใบ — อ่านจากรายการจริงใน DB (ไม่ผูกกับชื่อ master เพราะข้อมูลจริงเปลี่ยนได้)
+let secondProduct = "";
 
-async function addProduct(page: Page, name: string, price: string) {
+// เลือกสินค้าลำดับที่ index ในรายการ (ที่ยังไม่อยู่ในใบ) แล้วคืนชื่อ
+async function addProduct(page: Page, index: number, price: string) {
   await page.click(vis('button:has-text("เพิ่มสินค้า")'));
   await page.waitForSelector("#pick-price");
-  await page.click(`[role=option]:has-text("${name}")`);
+  const option = page.locator("[role=option]").nth(index);
+  const name = (await option.locator("div > div").first().textContent())!.trim();
+  await option.click();
   await page.fill("#pick-price", price);
   await page.click('button:has-text("ยืนยันเพิ่มรายการ")');
   await page.waitForSelector("#pick-price", { state: "detached" });
+  return name;
 }
 
 test("sale creates a quotation through the wizard and submits", async ({ page }) => {
   await login(page, USERS.sale);
   await page.goto("/quotations/new");
+
+  // ลูกค้าเก่า → ฟอร์มถูกเติม+ล็อก · สลับกลับเป็นลูกค้าใหม่ → ล้างค่าทั้งชุด
+  await page.click(vis('button:has-text("ลูกค้าเก่า")'));
+  await page.click("[role=listbox] [role=option] >> nth=0");
+  await expect(page.locator("#province")).not.toHaveValue(""); // ชื่อบริษัทเป็นกล่องล็อก ไม่ใช่ input
+  await page.click(vis('button:has-text("ลูกค้าใหม่")'));
+  await expect(page.locator("#companyName")).toHaveValue("");
+  await expect(page.locator("#province")).toHaveValue("");
 
   await page.click(vis('button:has-text("ถัดไป · เลือกสินค้า")'));
   await expect(page.locator("body")).toContainText("กรุณากรอกชื่อบริษัทลูกค้า");
@@ -34,9 +48,20 @@ test("sale creates a quotation through the wizard and submits", async ({ page })
   await page.click('button:has-text("15")');
   await page.click(vis('button:has-text("ถัดไป · เลือกสินค้า")'));
 
-  await addProduct(page, "ข้าวหอมมะลิปทุม 100%", "1260");
-  await addProduct(page, "ข้าวขาว", "1145");
-  await page.fill(vis('input[aria-label="ราคา ข้าวขาว"]'), "1150");
+  // รูปสินค้าจาก Storage (signed URL) ต้องมาถึง sheet เลือกสินค้า
+  await page.click(vis('button:has-text("เพิ่มสินค้า")'));
+  await page.waitForSelector("#pick-price");
+  await expect(page.locator("[role=option] img").first()).toBeVisible();
+  await page.keyboard.press("Escape");
+  await page.waitForSelector("#pick-price", { state: "detached" });
+
+  await addProduct(page, 0, "1260");
+  // รูปในตารางรายการ (หลังยืนยัน) ต้องโหลดได้จริง ไม่ใช่กรอบเปล่า
+  const ledgerImg = page.locator(vis("img[alt]")).first();
+  await expect(ledgerImg).toBeVisible();
+  expect(await ledgerImg.evaluate((el: HTMLImageElement) => el.complete && el.naturalWidth > 0)).toBe(true);
+  secondProduct = await addProduct(page, 0, "1145"); // ตัวแรกถูกซ่อนไปแล้ว → index 0 = สินค้าตัวถัดไป
+  await page.fill(vis(`input[aria-label="ราคา ${secondProduct}"]`), "1150");
   await page.click(vis('button:has-text("ถัดไป · ตรวจสอบ")'));
 
   await page.fill(vis('input[placeholder^="พิมพ์หมายเหตุ"]'), "ยืนราคา 30 วัน");
@@ -85,11 +110,11 @@ test("executive returns with reason; sale sees it, edits and resubmits", async (
   await sale.click(vis('a:has-text("แก้ไข")'));
   await sale.waitForURL(`**/quotations/${quotationId}/edit`);
   await sale.click(vis('button:has-text("ถัดไป · เลือกสินค้า")'));
-  await sale.fill(vis('input[aria-label="ราคา ข้าวขาว"]'), "1100");
+  await sale.fill(vis(`input[aria-label="ราคา ${secondProduct}"]`), "1100");
   await sale.click(vis('button:has-text("ถัดไป · ตรวจสอบ")'));
   await sale.click(vis('button:has-text("ส่งให้ผู้บริหารอนุมัติ")'));
   await sale.waitForURL(`**/quotations/${quotationId}`, { timeout: 60_000 });
-  await expect(sale.locator("body")).toContainText("ราคา ข้าวขาว: 1,150 → 1,100");
+  await expect(sale.locator("body")).toContainText(`ราคา ${secondProduct}: 1,150 → 1,100`);
 });
 
 test("executive approves with signature; quotation locks", async ({ browser }) => {

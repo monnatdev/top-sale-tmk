@@ -22,7 +22,7 @@ import { requireUser } from "@/lib/auth/session";
 import { getProfileSignaturePath } from "@/lib/db/queries/profiles";
 import { getQuotationById } from "@/lib/db/queries/quotations";
 import { isEditable } from "@/lib/services/quotationStateMachine";
-import { getSignatureUrl } from "@/lib/storage/signedUrl";
+import { getSignatureUrl, withProductImageUrls } from "@/lib/storage/signedUrl";
 import { formatThaiDate, formatThaiDateTime } from "@/lib/utils/format";
 import { approveQuotation, closeSale, rejectQuotation } from "../actions";
 
@@ -40,7 +40,7 @@ export default async function QuotationDetailPage({ params }: PageProps<"/quotat
   // ปุ่มตามตาราง UI-KIT ข้อ 3: approved+owner = Export (→ sent) · sent+owner = ปิดการขาย + Export ซ้ำ · อื่นๆ = Export ซ้ำ
   const exportIsFirst = q.status === "approved" && isOwner;
   const canCloseSale = isOwner && q.status === "sent";
-  const items = toLedgerItems(q.items);
+  const items = toLedgerItems(withProductImageUrls(q.items));
 
   // ลายเซ็น: signed URL ส่งให้ผู้บริหารเท่านั้น (auth-guard ข้อ 8) — เซลล์เห็นแค่ชื่อ/วันที่
   // ตอนรออนุมัติ = ลายเซ็นปัจจุบันของผู้บริหารที่ล็อกอิน · อนุมัติแล้ว = snapshot ในใบ

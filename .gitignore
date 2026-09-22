@@ -47,3 +47,6 @@ next-env.d.ts
 # playwright
 /test-results
 /playwright-report
+
+# ข้อมูลจริงของลูกค้าสำหรับ import (PII) — ห้าม commit
+data/

@@ -5,6 +5,7 @@ import path from "node:path";
 import { Document, Font, Image, Page, StyleSheet, Text, View, renderToBuffer } from "@react-pdf/renderer";
 import type { TextProps } from "@react-pdf/renderer";
 import type { ImageBytes } from "@/lib/storage/download";
+import { formatThaiAddress } from "@/lib/utils/address";
 
 export type QuotationPdfData = {
   quoteNumber: string;
@@ -82,13 +83,11 @@ const s = StyleSheet.create({
   imgBox: { width: 62, height: 46, borderWidth: 1, borderColor: C.border, backgroundColor: C.surface },
   notes: { marginTop: 14, fontSize: 10.5, lineHeight: 1.7 },
   sign: { flexDirection: "row", gap: 36, marginTop: 18, paddingTop: 16, borderTopWidth: 1, borderTopColor: C.strong, borderTopStyle: "dotted", fontSize: 10.5 },
-  signLine: { height: 52, borderBottomWidth: 1, borderBottomColor: C.ink, justifyContent: "flex-end", alignItems: "flex-end" },
+  signLine: { height: 76, borderBottomWidth: 1, borderBottomColor: C.ink, justifyContent: "flex-end", alignItems: "flex-end" },
 });
 
 function QuotationPdf({ d }: { d: QuotationPdfData }) {
-  const addr = [d.customer.addressLine, d.customer.subDistrict && `ต.${d.customer.subDistrict}`, d.customer.district && `อ.${d.customer.district}`, d.customer.province && `จ.${d.customer.province}`, d.customer.postalCode]
-    .filter(Boolean)
-    .join(" ");
+  const addr = formatThaiAddress(d.customer);
   return (
     <Document title={`ใบเสนอราคา ${d.quoteNumber}`} author={d.company.nameTh} language="th">
       <Page size="A4" style={s.page}>
@@ -188,7 +187,7 @@ function QuotationPdf({ d }: { d: QuotationPdfData }) {
           </View>
           <View style={{ flex: 1, alignItems: "flex-end" }}>
             <T>ขอแสดงความนับถือ</T>
-            <View style={[s.signLine, { alignSelf: "stretch" }]}>{d.signature ? <Image src={d.signature} style={{ width: 130, height: 44, objectFit: "contain" }} /> : null}</View>
+            <View style={[s.signLine, { alignSelf: "stretch" }]}>{d.signature ? <Image src={d.signature} style={{ width: 200, height: 70, objectFit: "contain", objectPositionX: "100%" }} /> : null}</View>
             <T style={[s.muted, { marginTop: 4 }]}>{d.signer ? `${d.signer.name} · ${d.signer.title}` : "—"}</T>
           </View>
         </View>

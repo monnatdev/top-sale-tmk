@@ -184,11 +184,13 @@ export const config = { matcher: ["/((?!_next|api/health|.*\\..*).*)"] };
 
 ---
 
-## 8. Storage — signed URL เท่านั้น
+## 8. Storage — ไม่มี public URL
 
 - Bucket `product-images`, `signatures` = **private** ทั้งคู่
-- DB เก็บ **path** (`products/abc.jpg`) ไม่เก็บ URL
-- แสดงรูป: server component / route เรียก `getSignedUrl(path, user)` → `admin.storage.from(bucket).createSignedUrl(path, 60 * 10)` → ส่ง URL ไป `next/image`
+- DB เก็บ **path** (`<uuid>.jpg`) ไม่เก็บ URL
+- **รูปสินค้า** (ทุก role ดูได้): หน้า server ใส่ `productImageUrl(path)` = `/api/product-images/<path>` → route เช็ก session + ดาวน์โหลดจาก bucket + ย่อ 200px · URL คงที่ cache ได้ (`private, max-age=3600`) · `ProductThumbnail` ใช้ `next/image` แบบ `unoptimized` เพราะย่อแล้ว
+  - ไม่ใช้ signed URL กับรูปในหน้าเว็บ: หมดอายุ 10 นาทีแล้ว `next/image` optimizer ดึงซ้ำได้ 400 เมื่อฟอร์มเปิดค้าง
+- **ลายเซ็น**: `getSignatureUrl(path)` → signed URL อายุ 10 นาที (`SIGNED_URL_TTL`) — ใช้เฉพาะจุดที่แสดงครั้งเดียวแล้วจบ
 - **ลายเซ็น**: gen signed URL ได้เฉพาะตอน (ก) gen PDF ฝั่ง server (ข) executive ดูของตัวเอง — ห้ามส่ง signed URL ลายเซ็นไปหน้า sale
 - Upload: ผ่าน server action เท่านั้น — จำกัด `image/jpeg|png|webp`, ≤ 2MB, ตั้งชื่อไฟล์ใหม่ด้วย uuid (ไม่ใช้ชื่อจาก user)
 - `admin.ts` (service_role) ห้ามถูก import จากไฟล์ที่มี `"use client"` — เพิ่ม `import "server-only"` บรรทัดแรก

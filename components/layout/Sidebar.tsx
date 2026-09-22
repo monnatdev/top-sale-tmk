@@ -18,9 +18,10 @@ const ROLE_HINT: Record<Role, string> = {
 };
 
 // sidebar เดสก์ท็อป 240px สี ink — ซ่อนบนมือถือ (ใช้ BottomNav แทน)
+// sticky + สูงเท่าจอ: หน้ายาวแค่ไหน เมนู/โปรไฟล์/ออกจากระบบก็อยู่ในสายตาเสมอ (ไม่ยืดตามเนื้อหา)
 export function Sidebar({ user }: { user: ShellUser }) {
   return (
-    <aside className="hidden w-60 shrink-0 flex-col gap-6 bg-sidebar px-4 py-5 text-sidebar-foreground md:flex">
+    <aside className="sticky top-0 hidden h-dvh w-60 shrink-0 flex-col gap-6 overflow-y-auto bg-sidebar px-4 py-5 text-sidebar-foreground md:flex">
       <div className="flex items-center gap-2.5">
         <BrandLogo size="sm" />
         <div className="flex flex-col">
