@@ -30,7 +30,7 @@ export function PriceTable({ items, renderTrailing, renderPrice, footer, classNa
       <div className="hidden md:block">
         <div
           className={cn(
-            "grid gap-4 border-b border-border bg-background px-6 py-2.5 text-xs text-muted-foreground",
+            "grid gap-4 border-b border-border bg-card px-6 py-2.5 text-xs font-semibold tracking-wide text-foreground",
             hasTrailing ? "grid-cols-[40px_96px_1fr_120px_180px_44px]" : "grid-cols-[40px_96px_1fr_120px_160px]",
           )}
         >

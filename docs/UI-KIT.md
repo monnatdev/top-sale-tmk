@@ -19,7 +19,7 @@
 
 | token | ค่า | ใช้กับ |
 |---|---|---|
-| `background` | `#F7F4F0` paper | พื้นหลังแอป, หัวตาราง, กล่องหมายเหตุ, ช่องค้นหา |
+| `background` | `#F7F4F0` paper | พื้นหลังแอป, กล่องหมายเหตุ, ช่องค้นหา |
 | `canvas` | `#EDE8E2` | พื้นนอกสุด / พื้นหลัง PDF preview |
 | `card` | `#FFFFFF` | การ์ด, แถบหัวหน้า, sidebar-footer มือถือ, ช่องกรอก |
 | `surface-muted` | `#F1ECE6` | ช่องล็อกแก้ไม่ได้ (`readOnly`), track ของ bar, หัวตาราง PDF |
@@ -247,6 +247,7 @@
 | กล่องอธิบาย | `<InfoNotice>` | `bg-primary-soft` เขียนเอง |
 | ข้อความส้ม/ลิงก์ | `text-primary-hover` | `text-primary` (ส้มสว่างใช้กับพื้นทึบเท่านั้น) |
 | สีจากดีไซน์ที่ยังไม่มี token | เพิ่มที่ `globals.css` + ตารางข้อ 1 ก่อน | `bg-[#...]` |
+| หัวตาราง | `bg-card text-xs font-semibold text-foreground` + `border-b border-border` (เหมือน `QuotationTable`/`PriceTable`) | ตัวเทาบาง / พื้นเทา — กลืนกับพื้น |
 | แถว/การ์ด/ตัวเลือกที่กดได้ (ไม่ใช่ Button) | `transition-colors hover:bg-background` (บนพื้น card) หรือ `hover:bg-muted` (บนพื้นแอป) **+ `active:bg-muted`** — มือถือไม่มี hover ต้องมี feedback ตอนแตะ | ไม่ใส่อะไรเลย / `hover:` อย่างเดียว |
 | cursor ปุ่ม | ไม่ต้องใส่ — `globals.css` ให้ `button`, `[role=button]`, `[role=option]` เป็น pointer แล้ว (Tailwind v4 ไม่ใส่ให้) | `cursor-pointer` รายตัว |
 

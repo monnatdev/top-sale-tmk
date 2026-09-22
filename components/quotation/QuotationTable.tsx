@@ -20,7 +20,7 @@ export function QuotationTable({ items, showOwner, className }: QuotationTablePr
   const cols = showOwner ? COLS_OWNER : COLS_SALES;
   return (
     <div className={cn("overflow-hidden rounded-lg border border-border bg-card", className)}>
-      <div className={cn(GRID, cols, "border-b border-border bg-background px-5 py-3 text-xs text-muted-foreground")}>
+      <div className={cn(GRID, cols, "border-b border-border bg-card px-5 py-3 text-xs font-semibold tracking-wide text-foreground")}>
         <div>เลขที่</div>
         <div>ลูกค้า</div>
         {showOwner ? <div>เซลล์ผู้สร้าง</div> : null}

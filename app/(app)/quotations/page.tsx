@@ -88,17 +88,17 @@ export default async function QuotationsPage({ searchParams }: PageProps<"/quota
       </PageHeader>
       <PageBody withActionBar={isSale}>
         <div className="flex items-center justify-between gap-3">
-          <p className="text-xs text-muted-foreground">
+          <p className="text-body text-muted-foreground">
+            {filter.q ? <>ผลค้นหา “{filter.q}” · </> : null}
+            <span className="mono text-base font-semibold text-foreground">{result.total.toLocaleString("th-TH")}</span> ใบ
             {filter.q ? (
               <>
-                ผลค้นหา “{filter.q}” · {result.total} ใบ ·{" "}
-                <Link href={listHref({ status: filter.status, sort: filter.sort })} className="text-primary-hover">
-                  ล้างคำค้น
+                {" · "}
+                <Link href={listHref({ status: filter.status, sort: filter.sort })} className="text-primary-hover hover:underline">
+                  ล้างคำค้นหา
                 </Link>
               </>
-            ) : (
-              <>{result.total} ใบ</>
-            )}
+            ) : null}
           </p>
           <SortSelect value={filter.sort} params={{ status: filter.status, q: filter.q }} />
         </div>
