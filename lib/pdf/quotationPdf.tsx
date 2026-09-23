@@ -1,6 +1,7 @@
 /* eslint-disable jsx-a11y/alt-text -- <Image> ของ react-pdf ไม่ใช่ <img> DOM */
 // template PDF ใบเสนอราคา (A4 หน้าเดียว) ตาม pattern ใบเดิมของบริษัท — ดูดีไซน์ส่วน "PDF PREVIEW"
 // pure: รับข้อมูลที่ format แล้ว ไม่แตะ DB/Next · เรียกจาก service เท่านั้น
+import fs from "node:fs";
 import path from "node:path";
 import { Document, Font, Image, Page, StyleSheet, Text, View, renderToBuffer } from "@react-pdf/renderer";
 import type { TextProps } from "@react-pdf/renderer";
@@ -41,6 +42,17 @@ Font.register({
 // ไม่ตัดคำไทยด้วย hyphen
 Font.registerHyphenationCallback((word) => [word]);
 
+// ---------- โลโก้แบรนด์ (ไฟล์เดียวกับที่เว็บใช้) ----------
+// อ่านครั้งเดียวตอนโหลดโมดูล · ไม่มีไฟล์ = ยังออก PDF ได้ แค่ไม่มีโลโก้ (next.config trace ไฟล์นี้เข้า bundle)
+const LOGO: ImageBytes | null = (() => {
+  try {
+    return { data: fs.readFileSync(path.join(process.cwd(), "public/brand/logo.png")), format: "png" };
+  } catch (e) {
+    console.error("[pdf] อ่านโลโก้ไม่ได้", e);
+    return null;
+  }
+})();
+
 // react-pdf normalize "ำ" → "ํ"+"า" แต่ยังนับความยาวเดิม → ตัวท้ายของบรรทัดหาย (github.com/diegomura/react-pdf/issues/3295)
 // decompose เองก่อนทุก string ไทย — ทุกข้อความใน template ต้องผ่าน <T> ไม่ใช้ <Text> ตรงๆ
 const fixThai = (s: string) => s.replace(/\u0E33/g, "\u0E4D\u0E32");
@@ -69,7 +81,7 @@ const s = StyleSheet.create({
   mono: { fontFamily: "PlexMono" },
   muted: { color: C.muted },
   header: { flexDirection: "row", gap: 12, borderBottomWidth: 2, borderBottomColor: C.ink, paddingBottom: 12 },
-  logoBox: { width: 48, height: 48, borderRadius: 3, alignItems: "center", justifyContent: "center" },
+  logo: { width: 38, height: 58, objectFit: "contain" },
   titleRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-end", marginTop: 16 },
   table: { borderWidth: 1, borderColor: C.ink, marginTop: 14 },
   tr: { flexDirection: "row", borderBottomWidth: 1, borderBottomColor: C.border, alignItems: "center" },
@@ -93,14 +105,7 @@ function QuotationPdf({ d }: { d: QuotationPdfData }) {
       <Page size="A4" style={s.page}>
         {/* หัวบริษัท */}
         <View style={s.header}>
-          <View style={{ flexDirection: "row", gap: 6 }}>
-            <View style={[s.logoBox, { borderWidth: 1, borderColor: C.border, backgroundColor: C.surface }]}>
-              <M style={[s.muted, { fontSize: 7 }]}>ORGANIC</M>
-            </View>
-            <View style={[s.logoBox, { backgroundColor: C.primary }]}>
-              <T style={{ fontSize: 7, color: "#ffffff" }}>แม่ครัว</T>
-            </View>
-          </View>
+          {LOGO ? <Image src={LOGO} style={s.logo} /> : null}
           <View style={{ flex: 1 }}>
             <T style={{ fontSize: 13, fontWeight: 600 }}>{d.company.nameTh}</T>
             <M style={[s.muted, { fontSize: 9, letterSpacing: 0.5 }]}>{d.company.nameEn}</M>

@@ -42,6 +42,7 @@ curl localhost:3000/api/health   # ต้องได้ {"ok":true,"db":"connec
 | `npm run db:migrate` | รัน migration ไปที่ `DIRECT_URL` |
 | `npm run db:seed` | สินค้าตัวอย่างจากดีไซน์ 4 ตัว — **ใช้เฉพาะ dev** · prod ใช้ `db:import` |
 | `npm run db:import` | import สินค้า + ลูกค้าเก่า + รูปสินค้า จาก `data/import/` (ดูข้อ 8) — รันซ้ำได้ · `-- --dry-run` เช็กก่อนไม่เขียน |
+| `npm run brand:logo` | สร้างไฟล์โลโก้/ไอคอนที่แอปใช้ จากต้นฉบับ `docs/brand/logo-original.png` (ดูข้อ 7) |
 | `npm run storage:setup` | สร้าง bucket private `product-images`, `signatures` (≤2MB png/jpg/webp) — รันซ้ำได้ |
 | `SEED_PASSWORD=… npm run db:seed:users` | สร้าง auth user + profile ตั้งต้น (แก้รายชื่อใน `scripts/seed-users.ts`) — มีแล้วข้าม ไม่รีเซ็ตรหัส |
 | `npm run db:studio` | เปิด Drizzle Studio ดูข้อมูล |
@@ -71,7 +72,13 @@ curl localhost:3000/api/health   # ต้องได้ {"ok":true,"db":"connec
 ## 7. ข้อมูลบริษัทบนหัว PDF
 
 แก้ที่ `lib/constants/company.ts` — ชื่อไทย/อังกฤษ, ที่อยู่, โทร, เลขผู้เสียภาษี, ตำแหน่งผู้เซ็น, ย่อหน้าเปิด
-**ค่าปัจจุบันเป็นตัวอย่างจากดีไซน์ ต้องแก้ก่อนส่งลูกค้าจริง** · โลโก้ยังเป็นกล่อง placeholder (ดู UI-KIT ข้อ 5)
+**ค่าปัจจุบันเป็นตัวอย่างจากดีไซน์ ต้องแก้ก่อนส่งลูกค้าจริง**
+
+**โลโก้** (ใช้ไฟล์จริงแล้ว — หัว PDF, sidebar, หน้า login, ไอคอนแท็บ/หน้าจอโฮม):
+- ต้นฉบับความละเอียดเต็ม: `docs/brand/logo-original.png` (2288×2288 พื้นโปร่ง)
+- ไฟล์ที่แอปใช้: `public/brand/logo.png` (335×512) · `app/icon.png` (512×512 favicon) · `app/apple-icon.png` (180×180 พื้นทึบ — iOS ไม่รองรับพื้นโปร่ง)
+- เปลี่ยนโลโก้: วางต้นฉบับทับ `docs/brand/logo-original.png` แล้ว `npm run brand:logo` (ตัดขอบโปร่ง + ย่อ + สร้างไอคอนให้ครบ)
+- PDF อ่าน `public/brand/logo.png` จากดิสก์ตอน render → ถ้าเพิ่ม/ย้ายไฟล์ ต้องอัปเดต `outputFileTracingIncludes` ใน `next.config.ts` ด้วย
 
 ## 8. Import master data (สินค้า + ลูกค้าเก่า)
 

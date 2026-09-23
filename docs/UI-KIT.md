@@ -127,7 +127,7 @@
 | `PageHeader` | แถบหัวขาวทุกหน้า (sticky มือถือ) | `title`, `subtitle`, `back`, `aside` (StatusBadge), `actions` (ปุ่ม/ค้นหา เดสก์ท็อป), `children` (แถวค้นหา/chips) |
 | `PageBody` | พื้นที่เนื้อหาใต้หัว | `withActionBar` เมื่อหน้ามี StickyActionBar |
 | `StickyActionBar` | ปุ่มหลัก sticky ล่างจอมือถือ (เหนือ BottomNav) — เดสก์ท็อปย้ายปุ่มไป `PageHeader.actions` | `split` = ย้อนกลับ \| ถัดไป |
-| `BrandLogo` | โลโก้หยดส้ม placeholder | `size: sm/md/lg` |
+| `BrandLogo` | โลโก้แบรนด์ (ไฟล์จริง `public/brand/logo.png`) | `size: sm/md/lg` = สูง 36/72/96px |
 | `NavLink` (client) | ลิงก์เมนูที่ไอคอนเปลี่ยนเป็น spinner ระหว่างรอหน้า (Sidebar/BottomNav ใช้) | `href`, `icon`, `active` |
 | `components/skeletons/PageSkeleton` | `HeaderSkeleton`, `CardSkeleton`, `ListSkeleton` — ใช้ใน `loading.tsx` ของทุก route | `chips`, `search`, `rows` |
 
