@@ -3,6 +3,7 @@ import { z } from "zod";
 import { requireUser } from "@/lib/auth/session";
 import type { SessionUser } from "@/lib/auth/types";
 import { AppError, ValidationError, type FieldErrors } from "@/lib/errors";
+import { reportError } from "@/lib/observability";
 import { type ActionResult, fail, ok } from "./actionResult";
 
 // ทำ 5 ขั้นตอนมาตรฐานของ Server Action ให้: parse → zod → session → handler → map error
@@ -40,6 +41,6 @@ export function toActionError(e: unknown): ActionResult<never> {
   if (e instanceof AppError) {
     return fail(e.message, e instanceof ValidationError ? e.fieldErrors : undefined);
   }
-  console.error("[action] unexpected", e); // ฝั่ง server เท่านั้น · Sentry ตอนข้อ 12
+  reportError("action", e); // log + Sentry ฝั่ง server เท่านั้น ไม่หลุดรายละเอียดไป client
   return fail("เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง");
 }

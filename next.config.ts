@@ -1,3 +1,4 @@
+import { withSentryConfig } from "@sentry/nextjs/config";
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
@@ -12,4 +13,13 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+// ห่อด้วย Sentry เฉพาะตอนตั้ง SENTRY_DSN — เครื่อง dev ที่ไม่ได้ตั้ง build เหมือนเดิมทุกอย่าง
+// อัปโหลด source map (ให้ stack trace อ่านรู้เรื่อง) ต้องมี SENTRY_AUTH_TOKEN + SENTRY_ORG + SENTRY_PROJECT ด้วย — ไม่มีก็ข้ามเงียบๆ
+export default process.env.SENTRY_DSN
+  ? withSentryConfig(nextConfig, {
+      silent: true,
+      telemetry: false,
+      widenClientFileUpload: false,
+      sourcemaps: { deleteSourcemapsAfterUpload: true },
+    })
+  : nextConfig;

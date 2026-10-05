@@ -42,13 +42,16 @@
   /supabase                supabase client (server.ts = สิทธิ์ user · admin.ts = service_role)
   env.ts                   env ผ่าน Zod — import จากที่นี่ ไม่อ่าน process.env ตรง
   errors.ts                AppError + subclass
+  observability.ts         reportError/reportWarning — log + ส่ง Sentry
   actionResult.ts          ActionResult<T>
 /tests                     setup, factories, stub
 /docs
   BRIEF.md                 สเปกระบบ
   SETUP.md                 ตั้งค่า env dev/prod
+  DEPLOY.md                ขึ้น production + บัญชีที่ลูกค้าต้องสมัคร + ส่งมอบ
 CLAUDE.md                  ไฟล์นี้ (root)
 proxy.ts                   (ข้อ 3) refresh session + redirect — Next 16 ใช้ชื่อนี้แทน middleware.ts
+instrumentation.ts         ตั้งค่า Sentry ตอน server boot + onRequestError
 ```
 
 **กฎเหล็กเรื่องชั้น (layer):**
@@ -122,6 +125,7 @@ proxy.ts                   (ข้อ 3) refresh session + redirect — Next 16 
 - ทุก input ฝั่ง server ผ่าน **Zod** — นิยาม schema ไว้ที่ `/lib/validation` ใช้ร่วม front/back ได้
 - Error แบ่ง 2 แบบ: **คาดไว้** (validation ไม่ผ่าน, ไม่มีสิทธิ์, ไม่พบ) → คืนข้อความไทยที่ผู้ใช้เข้าใจ · **ไม่คาด** (ระบบพัง) → log ฝั่ง server + คืนข้อความกลางๆ ไม่หลุดรายละเอียด
 - ไม่ throw error ดิบไป client · ไม่ log ข้อมูลอ่อนไหว (รหัสผ่าน/token/service key)
+- error ที่ไม่คาด **รายงานผ่าน `reportError(where, e, extra)`** (`lib/observability.ts`) ไม่ `console.error` ตรงๆ — มันเลือกให้เองว่าอะไรควรเข้า Sentry (AppError ไม่เข้า)
 - ทุกหน้ามี loading state และ error state ที่ผู้ใช้เข้าใจ
 
 **มาตรฐาน error (ยึดทุกชั้น):**

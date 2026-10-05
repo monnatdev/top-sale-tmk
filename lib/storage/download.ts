@@ -1,4 +1,5 @@
 import "server-only";
+import { reportWarning } from "@/lib/observability";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import type { BucketName } from "./buckets";
 
@@ -9,7 +10,7 @@ export async function downloadImage(bucket: BucketName, path: string | null | un
   if (!path) return null;
   const { data, error } = await supabaseAdmin.storage.from(bucket).download(path);
   if (error || !data) {
-    console.error(`[storage] download failed bucket=${bucket} path=${path}`, error?.message);
+    reportWarning("storage", `download failed bucket=${bucket}`, { path, error: error?.message });
     return null;
   }
   const buf = Buffer.from(await data.arrayBuffer());

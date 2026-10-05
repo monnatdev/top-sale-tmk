@@ -9,6 +9,8 @@ const serverSchema = z.object({
   SUPABASE_SERVICE_ROLE_KEY: z.string().min(1),
   NEXT_PUBLIC_SUPABASE_URL: z.url(),
   NEXT_PUBLIC_SUPABASE_ANON_KEY: z.string().min(1),
+  // error tracking — ไม่ตั้งก็รันได้ปกติ แค่ไม่ส่ง error ไป Sentry (dev/เครื่องตัวเองไม่ต้องตั้ง)
+  SENTRY_DSN: z.url().optional(),
 });
 
 const parsed = serverSchema.safeParse(process.env);

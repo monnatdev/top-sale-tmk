@@ -1,7 +1,6 @@
 // สร้างผู้ใช้แรกของระบบ (ไม่มีหน้าสมัคร) — รัน: SEED_PASSWORD=... npm run db:seed:users
 // สร้าง auth user ผ่าน Supabase Admin API + แถว profiles · idempotent: มีแล้วข้าม (ไม่รีเซ็ตรหัส)
-import { config } from "dotenv";
-config({ path: ".env.local" });
+import "./loadEnv";
 import { createClient } from "@supabase/supabase-js";
 import { drizzle } from "drizzle-orm/postgres-js";
 import { sql } from "drizzle-orm";

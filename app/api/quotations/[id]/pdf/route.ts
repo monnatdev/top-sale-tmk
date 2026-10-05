@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { getSessionUser } from "@/lib/auth/session";
 import { AppError } from "@/lib/errors";
+import { reportError } from "@/lib/observability";
 import { exportPdf } from "@/lib/services/quotationService";
 import { quotationIdSchema } from "@/lib/validation/quotation";
 
@@ -31,7 +32,7 @@ export async function GET(_req: Request, ctx: RouteContext<"/api/quotations/[id]
     });
   } catch (e) {
     if (e instanceof AppError) return NextResponse.json({ message: e.message }, { status: e.status });
-    console.error("[pdf] unexpected", e);
+    reportError("pdf", e, { quotationId: parsed.data.id });
     return NextResponse.json({ message: "เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง" }, { status: 500 });
   }
 }

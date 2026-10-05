@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import sharp from "sharp";
 import { z } from "zod";
 import { getSessionUser } from "@/lib/auth/session";
+import { reportError } from "@/lib/observability";
 import { BUCKETS } from "@/lib/storage/buckets";
 import { downloadImage } from "@/lib/storage/download";
 
@@ -33,7 +34,7 @@ export async function GET(_req: Request, ctx: RouteContext<"/api/product-images/
       .toBuffer();
     return new NextResponse(new Uint8Array(thumb), { headers: { "Content-Type": "image/jpeg", "Cache-Control": CACHE_CONTROL } });
   } catch (e) {
-    console.error("[product-image] resize failed", e);
+    reportError("product-image", e, { file: parsed.data.file });
     return NextResponse.json({ message: "เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง" }, { status: 500 });
   }
 }

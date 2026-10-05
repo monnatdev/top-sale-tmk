@@ -1,4 +1,5 @@
 import "server-only";
+import { reportWarning } from "@/lib/observability";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import { BUCKETS, SIGNED_URL_TTL, type BucketName } from "./buckets";
 
@@ -7,7 +8,7 @@ export async function getSignedUrl(bucket: BucketName, path: string | null | und
   if (!path) return null;
   const { data, error } = await supabaseAdmin.storage.from(bucket).createSignedUrl(path, SIGNED_URL_TTL);
   if (error) {
-    console.error(`[storage] signed url failed bucket=${bucket}`, error.message);
+    reportWarning("storage", `signed url failed bucket=${bucket}`, { error: error.message });
     return null;
   }
   return data.signedUrl;

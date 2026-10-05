@@ -31,6 +31,6 @@ export async function proxy(req: NextRequest) {
 }
 
 export const config = {
-  // ทุกหน้า ยกเว้น asset ของ Next, ไฟล์ static, และ health check
-  matcher: ["/((?!_next/static|_next/image|favicon.ico|api/health|.*\\.(?:png|jpg|jpeg|svg|webp|ico)$).*)"],
+  // ทุกหน้า ยกเว้น asset ของ Next, ไฟล์ static, robots.txt (ต้องให้ crawler อ่านได้โดยไม่เด้ง login) และ health check
+  matcher: ["/((?!_next/static|_next/image|favicon.ico|robots.txt|api/health|.*\\.(?:png|jpg|jpeg|svg|webp|ico)$).*)"],
 };

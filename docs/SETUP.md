@@ -1,5 +1,7 @@
 # SETUP — ตั้งค่าเครื่องและ environment
 
+> คู่มือนี้สำหรับ **เครื่อง dev** · ขึ้น production จริง + บัญชีที่ลูกค้าต้องสมัคร อยู่ที่ `docs/DEPLOY.md`
+
 ## 1. ต้องมี
 - Node ≥ 20.9 (โปรเจกต์นี้ทดสอบกับ 21.7) · npm
 - โปรเจกต์ Supabase **2 อัน** region Singapore: `top-sale-dev` และ `top-sale-prod`
@@ -18,7 +20,8 @@
 1. `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY` → Project Settings → API
 2. `DATABASE_URL` → ปุ่ม **Connect** → Connection String → URI → **Transaction pooler** (port 6543) — copy ทั้งบรรทัด (user = `postgres.<project ref>`)
 3. `DIRECT_URL` → ใช้ค่าเดียวกับข้อ 2 (session pooler port 5432 ของโปรเจกต์นี้ต่อไม่ได้ — drizzle-kit รันผ่าน transaction pooler ได้)
-4. แทน `[YOUR-PASSWORD]` ด้วยรหัส database — ไม่มีวงเล็บ · ถ้ารหัสมี `@ # % / ?` ต้อง URL-encode หรือ reset เป็นตัวอักษร+ตัวเลขล้วน
+4. `SENTRY_DSN` (ไม่บังคับ) — ใส่เฉพาะตอนอยากให้ error ถูกส่งไป Sentry · dev ปกติไม่ต้องตั้ง (ดู `docs/DEPLOY.md` ข้อ 7)
+5. แทน `[YOUR-PASSWORD]` ด้วยรหัส database — ไม่มีวงเล็บ · ถ้ารหัสมี `@ # % / ?` ต้อง URL-encode หรือ reset เป็นตัวอักษร+ตัวเลขล้วน
 
 ```bash
 cp .env.example .env.local   # แล้วกรอกค่า
@@ -40,6 +43,7 @@ curl localhost:3000/api/health   # ต้องได้ {"ok":true,"db":"connec
 | `npm run test:db` | test ที่ต่อ DB จริง (`*.db.test.ts`) — ใช้ `.env.local` (dev) · สร้างผู้ใช้ชั่วคราว `zztest-*` + ใบ `QT-9999-xxxx` แล้วลบทิ้งเอง · ห้ามชี้ prod |
 | `npm run db:generate` | สร้าง migration จาก `lib/db/schema.ts` → `drizzle/` |
 | `npm run db:migrate` | รัน migration ไปที่ `DIRECT_URL` |
+| `ENV_FILE=.env.prod.local <คำสั่ง>` | ให้สคริปต์อ่าน env จากไฟล์อื่น (ใช้ตอนรันใส่ production — ดู `docs/DEPLOY.md` ข้อ 5) · ทุกสคริปต์พิมพ์ปลายทางให้ดูก่อนทำงาน |
 | `npm run db:seed` | สินค้าตัวอย่างจากดีไซน์ 4 ตัว — **ใช้เฉพาะ dev** · prod ใช้ `db:import` |
 | `npm run db:import` | import สินค้า + ลูกค้าเก่า + รูปสินค้า จาก `data/import/` (ดูข้อ 8) — รันซ้ำได้ · `-- --dry-run` เช็กก่อนไม่เขียน |
 | `npm run brand:logo` | สร้างไฟล์โลโก้/ไอคอนที่แอปใช้ จากต้นฉบับ `docs/brand/logo-original.png` (ดูข้อ 7) |

@@ -1,7 +1,6 @@
 // Seed ข้อมูลตั้งต้นสำหรับ dev — รัน: npm run db:seed (ใช้ DIRECT_URL จาก .env.local)
 // idempotent: รันซ้ำได้ ไม่สร้างซ้ำ · ผู้ใช้ (auth + profiles) seed ในแผนข้อ 3 เพราะต้องผ่าน Supabase Auth
-import { config } from "dotenv";
-config({ path: ".env.local" });
+import "./loadEnv";
 import { eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";

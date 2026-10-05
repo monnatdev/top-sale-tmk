@@ -19,6 +19,8 @@ const plexMono = IBM_Plex_Mono({
 export const metadata: Metadata = {
   title: { default: "ระบบใบเสนอราคา", template: "%s · ใบเสนอราคา" },
   description: "ระบบออกใบเสนอราคา ข้าวตราแม่ครัว",
+  // ระบบภายใน ไม่ควรโผล่ในผลค้นหา (คู่กับ app/robots.ts)
+  robots: { index: false, follow: false },
 };
 
 export const viewport: Viewport = {

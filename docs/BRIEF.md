@@ -155,6 +155,6 @@ UI ภาษาไทยทั้งหมด, mobile-first (พนักงา�
 9. **รายการใบเสนอราคา** — list + กรองสถานะ + ค้นหา + สิทธิ์ (เซลล์เห็นเฉพาะตัวเอง) + pagination ✅
 10. **ภาพรวม** — ใบเสนอราคาแยกตามสถานะ (นับจำนวน กดไปหน้ารายการที่กรอง) ✅
 11. **Responsive + ขัดเกลา** — ทุกหน้าใช้มือถือได้จริง + loading state ✅ (loading.tsx/skeleton ทุกหน้า, spinner ปุ่ม/เมนู, error/not-found, sort+search+on-demand customer, Playwright e2e ใน repo — เหลือ: ทดสอบมือถือจริง/ปรับตาม feedback)
-12. **ก่อน deploy** — error tracking (Sentry), npm audit, backup ทดสอบกู้, โอน ownership account ให้ลูกค้า
+12. **ก่อน deploy** — error tracking (Sentry ✅ 2026-09-23), npm audit (✅ production deps 0 ช่องโหว่ · ที่เหลือเป็น dev-only), noindex/robots.txt (✅), backup ทดสอบกู้, โอน ownership account ให้ลูกค้า · **ขั้นตอนทั้งหมด + บัญชี/ค่าใช้จ่ายที่ลูกค้าต้องเตรียม อยู่ที่ `docs/DEPLOY.md`**
 
 **วิธีสั่งแต่ละงาน:** "ทำข้อ X ตาม BRIEF.md" แล้วรีวิว/เทสก่อนไปข้อถัดไป อย่าข้ามไปหลายข้อพร้อมกัน

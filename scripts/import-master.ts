@@ -3,8 +3,7 @@
 //       npm run db:import -- --dry-run → แค่อ่าน/ตรวจ ไม่เขียน DB/Storage
 // อ่านจาก data/import/master-data.xlsx + รูปใน data/import/images/ (โฟลเดอร์ data/ อยู่ใน .gitignore เพราะเป็นข้อมูลจริง)
 // idempotent: สินค้า match ด้วย (ชื่อ, นน./ถุง) · ลูกค้า match ด้วย (ชื่อบริษัท, ที่อยู่) — มีแล้วอัปเดต ไม่สร้างซ้ำ
-import { config } from "dotenv";
-config({ path: ".env.local" });
+import "./loadEnv";
 import { existsSync } from "node:fs";
 import path from "node:path";
 import ExcelJS from "exceljs";

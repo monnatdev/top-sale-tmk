@@ -1,6 +1,5 @@
 // สร้าง bucket private สำหรับรูปสินค้า + ลายเซ็น — รัน: npm run storage:setup (idempotent)
-import { config } from "dotenv";
-config({ path: ".env.local" });
+import "./loadEnv";
 import { createClient } from "@supabase/supabase-js";
 import { BUCKETS } from "../lib/storage/buckets";
 

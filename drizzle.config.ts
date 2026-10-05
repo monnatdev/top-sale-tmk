@@ -1,8 +1,6 @@
-import { config } from "dotenv";
+// drizzle-kit ไม่ได้รันผ่าน Next.js จึงต้องโหลด env เอง (ชี้ไฟล์อื่นด้วย ENV_FILE=... — ดู scripts/loadEnv.ts)
+import "./scripts/loadEnv";
 import { defineConfig } from "drizzle-kit";
-
-// drizzle-kit ไม่ได้รันผ่าน Next.js จึงต้องโหลด .env.local เอง (.env.test สำหรับเทส DB — ใส่ทีหลัง)
-config({ path: ".env.local" });
 
 // migration ใช้ DIRECT_URL (session mode) ไม่ผ่าน pooler
 export default defineConfig({
