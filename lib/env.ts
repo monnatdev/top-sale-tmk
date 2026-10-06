@@ -10,7 +10,8 @@ const serverSchema = z.object({
   NEXT_PUBLIC_SUPABASE_URL: z.url(),
   NEXT_PUBLIC_SUPABASE_ANON_KEY: z.string().min(1),
   // error tracking — ไม่ตั้งก็รันได้ปกติ แค่ไม่ส่ง error ไป Sentry (dev/เครื่องตัวเองไม่ต้องตั้ง)
-  SENTRY_DSN: z.url().optional(),
+  // ตั้งไว้เป็นค่าว่าง (เช่น paste ทั้งไฟล์ .env เข้า Vercel) ต้องถือว่า "ไม่ตั้ง" ไม่ใช่ URL ผิดรูปแบบ
+  SENTRY_DSN: z.preprocess((v) => (v === "" ? undefined : v), z.url().optional()),
 });
 
 const parsed = serverSchema.safeParse(process.env);
