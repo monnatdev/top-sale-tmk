@@ -46,6 +46,8 @@ curl localhost:3000/api/health   # ต้องได้ {"ok":true,"db":"connec
 | `ENV_FILE=.env.prod.local <คำสั่ง>` | ให้สคริปต์อ่าน env จากไฟล์อื่น (ใช้ตอนรันใส่ production — ดู `docs/DEPLOY.md` ข้อ 5) · ทุกสคริปต์พิมพ์ปลายทางให้ดูก่อนทำงาน |
 | `npm run db:seed` | สินค้าตัวอย่างจากดีไซน์ 4 ตัว — **ใช้เฉพาะ dev** · prod ใช้ `db:import` |
 | `npm run db:import` | import สินค้า + ลูกค้าเก่า + รูปสินค้า จาก `data/import/` (ดูข้อ 8) — รันซ้ำได้ · `-- --dry-run` เช็กก่อนไม่เขียน |
+| `npm run user -- --list` | ดู/สร้าง/แก้ผู้ใช้ทีละคน (ดูข้อ 5) |
+| `npm run templates:make` | สร้างไฟล์ Excel ที่ส่งให้ลูกค้ากรอกใหม่ (`docs/templates/`) |
 | `npm run brand:logo` | สร้างไฟล์โลโก้/ไอคอนที่แอปใช้ จากต้นฉบับ `docs/brand/logo-original.png` (ดูข้อ 7) |
 | `npm run storage:setup` | สร้าง bucket private `product-images`, `signatures` (≤2MB png/jpg/webp) — รันซ้ำได้ |
 | `SEED_PASSWORD=… npm run db:seed:users` | สร้าง auth user + profile ตั้งต้น (แก้รายชื่อใน `scripts/seed-users.ts`) — มีแล้วข้าม ไม่รีเซ็ตรหัส |
@@ -55,10 +57,18 @@ curl localhost:3000/api/health   # ต้องได้ {"ok":true,"db":"connec
 
 - Supabase → Authentication → Providers → Email → **ปิด "Allow new users to sign up"**
 
-- ไม่มีหน้าสมัคร/ลืมรหัส — เพิ่มผู้ใช้ด้วย `scripts/seed-users.ts` (แก้ array `USERS` แล้วรันใหม่) หรือ Supabase dashboard → Authentication → Add user แล้วเพิ่มแถว `profiles` ให้ตรง id
+- ไม่มีหน้าสมัคร/ลืมรหัส — จัดการผู้ใช้ด้วย `npm run user` (สร้าง/แก้ทีละคน · idempotent):
+  ```bash
+  npm run user -- --list                                                   # ดูทั้งหมด
+  npm run user -- --username somchai.s --name "สมชาย สุขใจ" --role sale     # สร้างใหม่ (ไม่ใส่ --password = สุ่มให้ พิมพ์ครั้งเดียว)
+  npm run user -- --username somchai.s --password 'รหัสใหม่'                # เปลี่ยนรหัส
+  npm run user -- --username somchai.s --inactive                          # ปิดบัญชี
+  ```
+  `scripts/seed-users.ts` ใช้เฉพาะตอน seed ชุดแรกบน dev · ชี้ production ต้องนำหน้าด้วย `ENV_FILE=.env.prod.local`
 - พนักงานล็อกอินด้วย **ชื่อผู้ใช้** (เช่น `somchai.s`) — ระบบแปลงเป็นอีเมลภายใน `<username>@organicpower.internal` ให้เอง (`lib/auth/username.ts`)
 - ปิดบัญชี: ตั้ง `profiles.is_active = false` → เตะออกทันทีทุก request (ไม่ต้องลบ auth user)
-- เปลี่ยนรหัสผ่าน: Supabase dashboard → Authentication → user → Reset password (MVP ไม่มีหน้าเปลี่ยนรหัสในแอป)
+- เปลี่ยนรหัสผ่าน: ใช้ `npm run user -- --username <ชื่อ> --password '<รหัสใหม่>'`
+  **อย่าใช้ปุ่ม "Send password recovery" ใน Supabase dashboard** — อีเมลภายใน (`@organicpower.internal`) ส่งไปไม่ถึงจริง ผู้ใช้จะไม่ได้รับลิงก์
 
 ## 6. ลายเซ็นผู้บริหาร + รูปสินค้า (Storage — ทำมือใน MVP)
 
@@ -87,6 +97,7 @@ curl localhost:3000/api/health   # ต้องได้ {"ok":true,"db":"connec
 ## 8. Import master data (สินค้า + ลูกค้าเก่า)
 
 1. ส่ง `docs/templates/master-data-template.xlsx` ให้ลูกค้ากรอก (มีแท็บคำแนะนำในไฟล์) พร้อมขอไฟล์รูปสินค้า
+   — อีกไฟล์คือ `company-users-template.xlsx` (ข้อมูลบริษัทบนหัว PDF + รายชื่อพนักงานที่ใช้ระบบ) · แก้เนื้อหา template ที่ `scripts/make-templates.ts` แล้ว `npm run templates:make`
 2. วางไฟล์: `data/import/master-data.xlsx` + รูปที่ `data/import/images/<ชื่อไฟล์รูปตามที่กรอกในคอลัมน์ "ชื่อไฟล์รูป">`
    — โฟลเดอร์ `data/` อยู่ใน `.gitignore` (ข้อมูลจริง/PII) · **ห้ามวางใน `public/`** เพราะจะเปิดให้ดาวน์โหลดได้ทั้งอินเทอร์เน็ต
 3. `npm run db:import -- --dry-run` → อ่านผลและ "⚠ ข้อควรตรวจ" (รหัสไปรษณีย์/เลขภาษีผิดหลัก, รูปหาย, ประเภทชำระผิด)
