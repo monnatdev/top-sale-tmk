@@ -4,17 +4,21 @@
 //   npm run user -- --username somchai.s --name "สมชาย สุขใจ" --role sale --password 'xxxxxxxx'
 //   npm run user -- --username somchai.s --password 'รหัสใหม่'      # เปลี่ยนรหัสผ่านอย่างเดียว
 //   npm run user -- --username somchai.s --inactive                 # ปิดบัญชี (ไม่ลบ)
+//   npm run user -- --username peerawit --signature data/import/signature-peerawit.png   # อัปโหลดลายเซ็น (ผู้บริหาร)
 //   npm run user -- --list
 //
 // ชี้ production:  ENV_FILE=.env.prod.local npm run user -- ...
 // ไม่ใส่ --password ตอนสร้างใหม่ = สุ่มรหัสให้แล้วพิมพ์ออกมาครั้งเดียว
 import "./loadEnv";
 import { randomBytes } from "node:crypto";
+import { readFileSync, existsSync } from "node:fs";
+import path from "node:path";
 import { createClient } from "@supabase/supabase-js";
 import { drizzle } from "drizzle-orm/postgres-js";
 import { asc, eq, sql } from "drizzle-orm";
 import postgres from "postgres";
 import * as schema from "../lib/db/schema";
+import { BUCKETS } from "../lib/storage/buckets";
 import { usernameToEmail } from "../lib/auth/username";
 import { ROLES, ROLE_LABEL, type Role } from "../lib/auth/types";
 
@@ -55,6 +59,22 @@ async function list() {
   }
 }
 
+// อัปโหลดลายเซ็นเข้า bucket signatures แล้วผูกกับ profile — bucket จำกัด 2MB และรับเฉพาะ png/jpg/webp
+async function uploadSignature(id: string, username: string, file: string) {
+  if (!existsSync(file)) throw new Error(`ไม่พบไฟล์ลายเซ็น ${file}`);
+  const ext = path.extname(file).toLowerCase();
+  const type = { ".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".webp": "image/webp" }[ext];
+  if (!type) throw new Error("ลายเซ็นต้องเป็นไฟล์ png, jpg หรือ webp");
+  const data = readFileSync(file);
+  if (data.byteLength > 2 * 1024 * 1024) throw new Error(`ไฟล์ใหญ่เกิน 2MB (${(data.byteLength / 1024 / 1024).toFixed(1)}MB) — ย่อก่อน`);
+
+  const objectPath = `${username}${ext}`;
+  const { error } = await admin.storage.from(BUCKETS.signatures).upload(objectPath, data, { contentType: type, upsert: true });
+  if (error) throw new Error(`อัปโหลดลายเซ็นไม่สำเร็จ: ${error.message}`);
+  await db.update(schema.profiles).set({ signaturePath: objectPath }).where(eq(schema.profiles.id, id));
+  return objectPath;
+}
+
 async function upsert() {
   const username = arg("username")?.trim().toLowerCase();
   if (!username || !USERNAME_RE.test(username)) {
@@ -87,6 +107,8 @@ async function upsert() {
     id = data.user.id;
     await db.insert(schema.profiles).values({ id, name, role: role ?? "sale", isActive: true });
     console.log(`\n✓ สร้างผู้ใช้ใหม่  ${username}  (${ROLE_LABEL[role ?? "sale"]})  ${name}`);
+    const sig = arg("signature");
+    if (sig) console.log(`  ลายเซ็น: ${await uploadSignature(id, username, sig)}`);
     if (generated) console.log(`  รหัสผ่าน: ${password}   ← แสดงครั้งเดียว บันทึกไว้แล้วส่งให้เจ้าตัว`);
     return;
   }
@@ -98,6 +120,9 @@ async function upsert() {
     if (error) throw new Error(`เปลี่ยนรหัสผ่านไม่สำเร็จ: ${error.message}`);
     changes.push("รหัสผ่าน");
   }
+  const sig = arg("signature");
+  if (sig) changes.push(`ลายเซ็น (${await uploadSignature(id, username, sig)})`);
+
   const set: Partial<typeof schema.profiles.$inferInsert> = {};
   if (name) set.name = name;
   if (role) set.role = role;

@@ -47,6 +47,7 @@
 /tests                     setup, factories, stub
 /docs
   BRIEF.md                 สเปกระบบ
+  CODEBASE.md              ไฟล์ไหนทำอะไร + ลำดับอ่านโค้ดสำหรับคนใหม่
   SETUP.md                 ตั้งค่า env dev/prod
   DEPLOY.md                ขึ้น production + บัญชีที่ลูกค้าต้องสมัคร + ส่งมอบ
 CLAUDE.md                  ไฟล์นี้ (root)
