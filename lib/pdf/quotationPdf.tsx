@@ -19,7 +19,7 @@ export type QuotationPdfData = {
   notes: string[];
   signer: { name: string; title: string } | null;
   signature: ImageBytes | null;
-  company: { nameTh: string; nameEn: string; address: string; phone: string; taxId: string; brand: string; intro: string };
+  company: { nameTh: string; nameEn: string; address: string; phone: string; taxId: string; brand: string; intro: string; standardNotes: readonly string[]; closing: string };
 };
 
 // ---------- fonts (ฝังจากไฟล์ในโปรเจกต์ — next.config outputFileTracingIncludes รวมไฟล์นี้ตอน deploy) ----------
@@ -39,7 +39,7 @@ Font.register({
     { src: path.join(FONT_DIR, "IBMPlexMono-Medium.ttf"), fontWeight: 500 },
   ],
 });
-// ไม่ตัดคำไทยด้วย hyphen
+// ไม่ตัดคำไทยด้วย hyphen — react-pdf ใส่ "-" ทุกครั้งที่ตัดกลางคำ (ปิดไม่ได้) จึงตัดบรรทัดได้เฉพาะตรงช่องว่าง
 Font.registerHyphenationCallback((word) => [word]);
 
 // ---------- โลโก้แบรนด์ (ไฟล์เดียวกับที่เว็บใช้) ----------
@@ -77,7 +77,7 @@ function M({ children, style, ...props }: TProps) {
 const C = { ink: "#3a2a1c", muted: "#8a7f73", border: "#e7e1da", strong: "#d6cec4", surface: "#f1ece6", canvas: "#ede8e2", primary: "#e8842b" };
 
 const s = StyleSheet.create({
-  page: { fontFamily: "PlexThai", fontSize: 11, color: C.ink, paddingTop: 40, paddingBottom: 40, paddingHorizontal: 44, lineHeight: 1.5 },
+  page: { fontFamily: "PlexThai", fontSize: 11, color: C.ink, paddingTop: 32, paddingBottom: 32, paddingHorizontal: 44, lineHeight: 1.5 },
   mono: { fontFamily: "PlexMono" },
   muted: { color: C.muted },
   header: { flexDirection: "row", gap: 12, borderBottomWidth: 2, borderBottomColor: C.ink, paddingBottom: 12 },
@@ -93,9 +93,9 @@ const s = StyleSheet.create({
   cImg: { width: 88, alignItems: "center" },
   cPrice: { width: 92, textAlign: "right", borderRightWidth: 0 },
   imgBox: { width: 62, height: 46, borderWidth: 1, borderColor: C.border, backgroundColor: C.surface },
-  notes: { marginTop: 14, fontSize: 10.5, lineHeight: 1.7 },
-  sign: { flexDirection: "row", gap: 36, marginTop: 18, paddingTop: 16, borderTopWidth: 1, borderTopColor: C.strong, borderTopStyle: "dotted", fontSize: 10.5 },
-  signLine: { height: 76, borderBottomWidth: 1, borderBottomColor: C.ink, justifyContent: "flex-end", alignItems: "flex-end" },
+  notes: { marginTop: 12, fontSize: 10.5, lineHeight: 1.55 },
+  sign: { flexDirection: "row", gap: 36, marginTop: 12, paddingTop: 12, borderTopWidth: 1, borderTopColor: C.strong, borderTopStyle: "dotted", fontSize: 10.5 },
+  signLine: { height: 64, borderBottomWidth: 1, borderBottomColor: C.ink, justifyContent: "flex-end", alignItems: "flex-end" },
 });
 
 function QuotationPdf({ d }: { d: QuotationPdfData }) {
@@ -140,7 +140,7 @@ function QuotationPdf({ d }: { d: QuotationPdfData }) {
             {addr ? ` · ${addr}` : ""}
           </T>
           <T style={{ marginTop: 5 }}>
-            {d.company.nameTh} {d.company.intro}
+            {d.company.intro}
           </T>
         </View>
 
@@ -171,17 +171,16 @@ function QuotationPdf({ d }: { d: QuotationPdfData }) {
           ))}
         </View>
 
-        {/* หมายเหตุ */}
-        {d.notes.length > 0 ? (
-          <View style={s.notes}>
-            <T style={{ fontWeight: 600, marginBottom: 2 }}>หมายเหตุ / เงื่อนไขการสั่งซื้อ</T>
-            {d.notes.map((n, i) => (
-              <T key={i}>
-                {i + 1}. {n}
-              </T>
-            ))}
-          </View>
-        ) : null}
+        {/* หมายเหตุ — เงื่อนไขมาตรฐานก่อน แล้วต่อด้วยหมายเหตุของเซลล์ (เลขข้อรันต่อกัน) */}
+        <View style={s.notes}>
+          <T style={{ fontWeight: 600, marginBottom: 2 }}>หมายเหตุ : เงื่อนไขการสั่งซื้อ</T>
+          {[...d.company.standardNotes, ...d.notes].map((n, i) => (
+            <T key={i}>
+              {i + 1}. {n}
+            </T>
+          ))}
+          <T style={{ marginTop: 6 }}>{d.company.closing}</T>
+        </View>
 
         {/* ลงชื่อ */}
         <View style={s.sign} wrap={false}>
@@ -192,7 +191,7 @@ function QuotationPdf({ d }: { d: QuotationPdfData }) {
           </View>
           <View style={{ flex: 1, alignItems: "flex-end" }}>
             <T>ขอแสดงความนับถือ</T>
-            <View style={[s.signLine, { alignSelf: "stretch" }]}>{d.signature ? <Image src={d.signature} style={{ width: 200, height: 70, objectFit: "contain", objectPositionX: "100%" }} /> : null}</View>
+            <View style={[s.signLine, { alignSelf: "stretch" }]}>{d.signature ? <Image src={d.signature} style={{ width: 200, height: 60, objectFit: "contain", objectPositionX: "100%" }} /> : null}</View>
             <T style={[s.muted, { marginTop: 4 }]}>{d.signer ? `${d.signer.name} · ${d.signer.title}` : "—"}</T>
           </View>
         </View>
